@@ -299,11 +299,12 @@ async function populateConfigSelect(manual) {
         ? '<option value="">— Choisir un fichier (conf_files/advanced) —</option>'
         : '<option value="">Choisir une configuration</option>';
 
-    // Beginner mode: prefer manifest (labels + emoji)
-    if (mode === 'user') {
+    // Prefer manifest (works offline via service worker cache).
+    // Beginner mode keeps manifest labels (emoji), advanced mode shows cleaned file names.
+    {
         const manifestOptions = await tryFetchManifestJSON();
         if (manifestOptions && manifestOptions.length) {
-            addOptions(sel, manifestOptions, /*useCleanNames=*/false);
+            addOptions(sel, manifestOptions, /*useCleanNames=*/mode === 'advanced');
             if (typeof updateStatus === 'function') updateStatus(`${manifestOptions.length} configuration(s) via manifest`, 'success');
             else if (typeof logLine === 'function') logLine(`✓ ${manifestOptions.length} configuration(s) via manifest.`);
             return [manifestOptions, "manifest"];
@@ -330,10 +331,10 @@ async function populateConfigSelect(manual) {
     }
 
     if (typeof updateStatus === 'function') {
-        updateStatus(`ℹ️ Impossible de lister ${base}/. Utilisez un fichier personnel${mode === 'user' ? ' ou ajoutez un manifest.json' : ''}.`, 'info');
+        updateStatus(`ℹ️ Impossible de lister ${base}/. Utilisez un fichier personnel ou ajoutez un manifest.json.`, 'info');
     } else if (typeof logLine === 'function') {
         logLine(manual ? 'ℹ️ Aucun fichier détecté.' :
-            `ℹ️ Impossible de lister ${base}/. Utilisez le bouton "fichier personnel"${mode === 'user' ? ' ou ajoutez un manifest.json' : ''}.`);
+            `ℹ️ Impossible de lister ${base}/. Utilisez le bouton "fichier personnel" ou ajoutez un manifest.json.`);
     }
 }
 
@@ -367,8 +368,6 @@ function addOptions(selectEl, items, useCleanNames = true) {
  */
 async function tryFetchManifestJSON() {
     const base = getConfigBase();
-    // Only meaningful for 'user' mode where a manifest exists
-    if (window.CONFIG_SOURCE !== 'user') return null;
     try {
         const resp = await fetch(`${base}/manifest.json?t=` + Date.now(), { cache: 'no-store' });
         if (!resp.ok) return null;

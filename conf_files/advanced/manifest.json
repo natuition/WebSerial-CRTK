@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "items": [
+    { "file": "NavX_bluetooth.cfg" },
+    { "file": "NavX_GNSS_Mixed.cfg" },
+    { "file": "NavX_GNSS_Openfield.cfg" },
+    { "file": "NavX_GNSS_Town.cfg" },
+    { "file": "RTKBase_GNSS_UM980.cfg" },
+    { "file": "RTKBase_GNSS_UM982.cfg" }
+  ]
+}
