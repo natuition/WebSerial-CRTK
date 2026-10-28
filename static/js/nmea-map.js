@@ -309,9 +309,15 @@ async function openMapModal() {
             container: 'map',
             style: MAP_STYLE_URL,
             center: [lastFix.lon, lastFix.lat],
-            zoom: 18
+            zoom: 18,
+            // "i" button instead of a 2-line credit band on small screens
+            attributionControl: { compact: true }
         });
         posMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+        // MapLibre opens the compact credit on load: keep it folded ("i" opens it)
+        posMap.once('load', () => {
+            posMap.getContainer().querySelector('.maplibregl-ctrl-attrib')?.classList.remove('maplibregl-compact-show');
+        });
         // Stop following once the user moves the map ("Recentrer" resumes)
         posMap.on('dragstart', () => { followPosition = false; });
         const el = document.createElement('div');

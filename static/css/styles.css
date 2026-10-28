@@ -297,6 +297,11 @@ footer a:hover svg {
   display: none;
 }
 
+/* The mobile rule below sets display: flex, which would win over .hidden (desktop-only switch) */
+.mode-switch-container.hidden {
+  display: none;
+}
+
 .muted {
   opacity: 0.7;
 }
@@ -597,12 +602,29 @@ html {
     flex-wrap: wrap;
   }
 
+  /* Transport + button share the first line (fixed desktop widths would wrap them) */
+  .connect-row .transport-selector,
   .connect-btn {
-    flex: 1 1 auto;
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
   }
 
   .device-status {
     flex-basis: 100%;
+  }
+
+  .map-btn {
+    height: 36px;
+  }
+}
+
+/* Phones: 16px form fields (smaller makes mobile browsers zoom on focus) */
+@media (max-width: 768px) {
+  select,
+  input[type="number"],
+  input[type="text"] {
+    font-size: 16px;
   }
 }
 
@@ -850,4 +872,50 @@ html {
 
 .map-recenter:hover {
   border-color: var(--primary);
+}
+
+/* Phone: transport selector and map banner (after their base rules so they win) */
+@media (max-width: 600px) {
+  /* Narrow selector: smaller icon and paddings so "Bluetooth" fits */
+  .transport-icon {
+    left: 6px;
+    width: 26px;
+    height: 26px;
+  }
+
+  .connect-row .transport-select {
+    padding-left: 38px;
+    padding-right: 22px;
+    background-position: right 8px center;
+  }
+
+  /* Map banner: stats on a compact 2-column grid, Recentrer / close on the right */
+  .map-banner {
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .map-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 12px;
+  }
+
+  .map-stats .map-fix {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  .map-stat small {
+    font-size: 0.7rem;
+  }
+
+  .map-stat strong {
+    font-size: 0.95rem;
+  }
+
+  .map-recenter {
+    padding: 6px 10px;
+  }
 }

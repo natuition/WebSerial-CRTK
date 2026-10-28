@@ -1,4 +1,4 @@
-const CACHE = 'webserial-crtk-v14';
+const CACHE = 'webserial-crtk-v15';
 const NETWORK_TIMEOUT_MS = 3000;
 const PRECACHE_URLS = [
     '/',

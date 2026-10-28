@@ -484,6 +484,45 @@ h1 {
   }
 }
 
+/* Phone: the summary table becomes a list (configuration name above its description) */
+@media (max-width: 600px) {
+  .config-summary-table,
+  .config-summary-table tbody,
+  .config-summary-table tr,
+  .config-summary-table td,
+  .config-summary-table .config-summary-group th {
+    display: block;
+    width: auto;
+  }
+
+  .config-summary-table thead {
+    display: none;
+  }
+
+  .config-summary-table td:first-child {
+    font-weight: 700;
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .config-summary-table td:last-child {
+    padding-top: 4px;
+  }
+}
+
+/* Phones: 16px settings fields too (this file sets a smaller clamp) */
+@media (max-width: 768px) {
+  .settings-content select,
+  .settings-content input[type="number"] {
+    font-size: 16px;
+  }
+}
+
+/* Comfortable touch target for the main action */
+#upload {
+  min-height: 48px;
+}
+
 @media (max-width: 360px) {
   .brand {
     gap: 6px;

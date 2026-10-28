@@ -274,8 +274,8 @@ function showWelcomeMessage() {
         font-size: 24px;
         cursor: pointer;
         padding: 0;
-        width: 30px;
-        height: 30px;
+        width: 40px;
+        height: 40px;
         display: flex;
         align-items: center;
         justify-content: center;
