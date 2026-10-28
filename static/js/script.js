@@ -236,13 +236,41 @@ async function connectTransport() {
     return await connectSerial();
 }
 
+/**
+ * Show the connected device in the status pill (null = not connected)
+ */
+function setDeviceStatus(label) {
+    const statusEl = $('#deviceStatus');
+    const nameEl = $('#deviceName');
+    if (nameEl) nameEl.textContent = label || 'Non connecté';
+    if (statusEl) statusEl.classList.toggle('connected', !!label);
+}
+
+/**
+ * USB / Bluetooth icon in the transport selector
+ */
+function updateTransportIcons(transport) {
+    const usbIcon = document.querySelector('.transport-icon.usb-icon');
+    const bleIcon = document.querySelector('.transport-icon.ble-icon');
+    if (!usbIcon || !bleIcon) return;
+    usbIcon.style.display = (transport === 'serial') ? 'block' : 'none';
+    bleIcon.style.display = (transport === 'serial') ? 'none' : 'block';
+}
+
+/**
+ * Phone / tablet detection: no USB there, and the advanced page is desktop only
+ */
+function isPhoneDevice() {
+    const uaMobile = /Mobi|Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '');
+    const touch = (navigator.maxTouchPoints || 0) > 0 || 'ontouchstart' in window;
+    const small = window.innerWidth <= 768;
+    return uaMobile || (touch && small);
+}
+
 // If the user is on a phone, disable USB (serial) option in the transport selector
 function disableUsbOnMobile() {
     try {
-        const uaMobile = /Mobi|Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '');
-        const touch = (navigator.maxTouchPoints || 0) > 0 || 'ontouchstart' in window;
-        const small = window.innerWidth <= 768;
-        const isPhone = uaMobile || (touch && small);
+        const isPhone = isPhoneDevice();
 
         const sel = document.getElementById('transport');
         if (!sel) return;
@@ -285,10 +313,9 @@ async function disconnectTransport() {
 
 /* ---------------------- Configuration files listing ---------------------- */
 const ALLOWED_EXT = /\.(txt|cfg|conf|ini|nmea|csv|log)$/i;
-// Resolve base folder depending on interface and, in user mode, on transport ---
+// Same configurations on both pages: the folder depends on the transport only
 function getConfigBase() {
-    if (window.CONFIG_SOURCE === 'advanced') return 'conf_files/advanced';
-    return ($('#transport')?.value === 'ble') ? 'conf_files/user_ble' : 'conf_files/user';
+    return ($('#transport')?.value === 'ble') ? 'conf_files/ble' : 'conf_files/usb';
 }
 
 /**
@@ -296,19 +323,15 @@ function getConfigBase() {
  */
 async function populateConfigSelect(manual) {
     const sel = $('#configSelect');
-    const mode = (window.CONFIG_SOURCE === 'advanced') ? 'advanced' : 'user';
     const base = getConfigBase();
 
-    sel.innerHTML = mode === 'advanced'
-        ? '<option value="">— Choisir un fichier (conf_files/advanced) —</option>'
-        : '<option value="">Choisir une configuration</option>';
+    sel.innerHTML = '<option value="">Choisir une configuration</option>';
 
-    // Prefer manifest (works offline via service worker cache).
-    // Beginner mode keeps manifest labels (emoji), advanced mode shows cleaned file names.
+    // Prefer manifest (works offline via service worker cache), with its labels (emoji) and groups
     {
         const manifestOptions = await tryFetchManifestJSON();
         if (manifestOptions && manifestOptions.length) {
-            addOptions(sel, manifestOptions, /*useCleanNames=*/mode === 'advanced');
+            addOptions(sel, manifestOptions, /*useCleanNames=*/false);
             if (typeof updateStatus === 'function') updateStatus(`${manifestOptions.length} configuration(s) via manifest`, 'success');
             else if (typeof logLine === 'function') logLine(`✓ ${manifestOptions.length} configuration(s) via manifest.`);
             return [manifestOptions, "manifest"];
@@ -537,37 +560,3 @@ function extractConfigDescription(content) {
 
     return (description.title || description.details.length) ? description : null;
 }
-
-/* ---------------------- Mode switch management ---------------------- */
-/**
- * Initializes the common mode switch
- */
-function initializeModeSwitch() {
-    document.addEventListener('DOMContentLoaded', () => {
-        const modeToggle = $('#modeToggle');
-
-        // Determine if we're in advanced mode based on current page
-        const isAdvancedMode = window.location.pathname.includes('index_advanced.html');
-
-        if (modeToggle) {
-            modeToggle.onchange = () => {
-                if (isAdvancedMode) {
-                    // We're on the advanced page, if unchecked, go to beginner mode
-                    if (!modeToggle.checked) {
-                        localStorage.setItem('centipede-mode', 'beginner');
-                        window.location.href = 'index.html';
-                    }
-                } else {
-                    // We're on the beginner page, if checked, go to advanced mode
-                    if (modeToggle.checked) {
-                        localStorage.setItem('centipede-mode', 'advanced');
-                        window.location.href = 'index_advanced.html';
-                    }
-                }
-            };
-        }
-    });
-}
-
-// Initialize the mode switch
-initializeModeSwitch();

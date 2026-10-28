@@ -16,12 +16,12 @@
     <!-- Mode Switch -->
     <div class="mode-switch-container">
         <div class="mode-switch">
-            <span class="mode-label" id="beginnerLabel">Débutant</span>
+            <span>Débutant</span>
             <label class="switch">
-                <input type="checkbox" id="modeToggle" checked>
-                <span class="slider"></span>
+                <input type="checkbox" id="modeSwitch" checked>
+                <span class="slider round"></span>
             </label>
-            <span class="mode-label active" id="advancedLabel">Avancé</span>
+            <span>Avancé</span>
         </div>
     </div>
 
@@ -30,98 +30,183 @@
         Configurateur NavX
     </h1>
 
-    <div class="row">
-        <button id="connect">🔌 Connecter</button>
-        <button id="disconnect" disabled>⏏️ Déconnecter</button>
-
-        <label>Transport
-            <select id="transport" autocomplete="off">
-                <option value="ble" selected>BLE</option>
-                <option value="serial">USB</option>
+    <!-- Connexion : transport, bouton, état + réglages de liaison -->
+    <section class="card adv-connection">
+        <div class="connect-row">
+          <div class="transport-selector">
+            <img class="transport-icon usb-icon"
+              src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAACx0lEQVR4nO2X22vTUBzHo8LAv0HwL/ECgi/LSc/pkjzIRLwwmCs5c0Pdkpe+CLbKhiIOrFMfVNDVnbOCDyqu0r6sCpKxG7r2zctkMtjwgg/KkXZbbbJ26WnWZI584feUC5/P79wSQQgSpPkx3xWYm/IAcfMEAn7HDAR8jrlTBBRsWMoOWuu63/xCIOB3zJ2yBsxAwKeYgYDPMf9HATUabZE1I65o+mf79shbMjY+KViPFd/pmYCC9Zhb8I2lx7wT0Nx3vspILHgngLe6+6sVCNSbQADvRIGefiaOhU4ACkdFgvIiQT8AQSuAwjmRoHsSQVAdUfdsS4Hw5S4mPVIYoGjTEgmakUbDR7ePQLfO4NBJR3BQKUHhH5EgfVsI8MIDS8Hzvgqg+FkX8Kg4Er9FCg/6I9DTz8Bj5zkPKgqlZHZpImqXeCMwYZfnAuhKJxc8TMksNf+AFZZybHjqBpNo+N91gg57LhC6287V+dT8wxL8el3I9FbuTIPcAjLWv7kRkJJtG0C1dIRFxrsc4W+aA9ZnCcryj4BmTLua/3b48QibXcyyua9Z1p3G5Wkzlr9vgb81ea3ablTgF8D61YYFzum2+d3Gch+flSFnFjOs+5W2ofND5mCtwy3PLaD2GPtkzfjZqARIyhaIjhcdbPJLugybX5qoC35tCmW4BVZHof/UVi7iM89Ps7cLLy3ghaUcS0xedzoPBoRGI2OjU8HGL+5tNF59G7VLJBzgi9U6FjokuImK+/aX1oRmTMua8d0JXsbGstJ7MQuehFc2k0jUAQ8ofN3QQeaUWvCV9wCCOmuBHXvaXtenBCDowJbD1ytQjEjQbZ4TGVgXb29T4HkE1BG1RSRomPtzmsK+psHzCKxn7U/sQx1dn5JGw0eaCt+IQDHqiLq3laDjgKAkoPB96ZeSwmWRoFlA4R1AoRSNRnc3HT5IEKGcv9WwF3+CjnqdAAAAAElFTkSuQmCC"
+              alt="usb-connected">
+            <select id="transport" class="transport-select" autocomplete="off">
+              <option value="ble" selected>Bluetooth</option>
+              <option value="serial">USB-C</option>
             </select>
-            <div class="muted" id="deviceName" style="margin-top:6px; font-size:12px;">—</div>
-        </label>
+            <img class="transport-icon ble-icon"
+              src="data:image/png;base64,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"
+              alt="Bluetooth" style="display:none;">
+          </div>
+          <button id="connect" class="btn btn-primary connect-btn">
+            <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M12 2v10" />
+              <path d="M18.4 6.6a9 9 0 1 1-12.77.04" />
+            </svg>
+            Connecter
+          </button>
+          <button id="disconnect" class="btn btn-danger-outline connect-btn hidden" disabled>
+            <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M12 2v10" />
+              <path d="M18.4 6.6a9 9 0 1 1-12.77.04" />
+            </svg>
+            Déconnecter
+          </button>
+          <div id="deviceStatus" class="device-status" aria-live="polite">
+            <span id="deviceName">Non connecté</span>
+            <!-- Shown while NMEA positions are received and the browser is online -->
+            <button id="mapToggle" class="map-btn hidden" title="Voir la position sur la carte">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M20 10c0 4.99-5.54 10.19-7.4 11.8a1 1 0 0 1-1.2 0C9.54 20.19 4 14.99 4 10a8 8 0 0 1 16 0" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              Carte
+            </button>
+          </div>
+        </div>
+        <div class="adv-settings">
+            <label class="field">Baud
+                <select id="baud">
+                    <option>4800</option>
+                    <option>9600</option>
+                    <option>19200</option>
+                    <option>28800</option>
+                    <option>38400</option>
+                    <option>57600</option>
+                    <option>76800</option>
+                    <option selected>115200</option>
+                    <option>230400</option>
+                    <option>460800</option>
+                    <option>576000</option>
+                    <option>921600</option>
+                </select>
+            </label>
+            <label class="field">Fin de ligne
+                <select id="eol">
+                    <option value="\r\n" selected>CRLF</option>
+                    <option value="\n">LF</option>
+                    <option value="\r">CR</option>
+                </select>
+            </label>
+            <label class="field">Délai
+                <input id="delay" type="number" min="0" step="0.1" value="5">
+                <span class="unit">s</span>
+            </label>
+            <label class="check">
+                <input type="checkbox" id="waitAck" checked>
+                Attendre acquittement
+            </label>
+        </div>
+    </section>
 
-        <label>Baud
-            <select id="baud">
-                <option>4800</option>
-                <option>9600</option>
-                <option>19200</option>
-                <option>28800</option>
-                <option>38400</option>
-                <option>57600</option>
-                <option>76800</option>
-                <option selected>115200</option>
-                <option>230400</option>
-                <option>460800</option>
-                <option>576000</option>
-                <option>921600</option>
-            </select>
-        </label>
+    <div class="adv-main">
+        <!-- Commandes : configuration, édition, envoi -->
+        <section class="card adv-editor">
+            <div class="adv-editor-head">
+                <select id="configSelect">
+                    <option value="">Choisir une configuration</option>
+                </select>
+                <input id="configFile" class="visually-hidden" type="file" accept=".txt,.cfg,.conf,.ini,.log,.nmea,.csv,.*" />
+                <label for="configFile" class="icon-btn" title="Charger un fichier personnel">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+                        <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+                        <path d="M12 12v6" />
+                        <path d="m15 15-3-3-3 3" />
+                    </svg>
+                </label>
+            </div>
+            <textarea id="cmd" spellcheck="false"
+                placeholder="Collez ou éditez vos commandes ici (une par ligne). Les lignes vides et celles commençant par #, // ou ; sont ignorées."></textarea>
+            <div class="progress-row">
+                <span class="progress-count" id="progressText">–</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="adv-actions">
+                <button id="send" class="btn btn-primary">
+                    <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <path d="M17 8l-5-5-5 5" />
+                        <path d="M12 3v12" />
+                    </svg>
+                    Envoyer
+                </button>
+                <button id="save" class="btn btn-primary-outline">
+                    <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" />
+                        <path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7" />
+                        <path d="M7 3v4a1 1 0 0 0 1 1h7" />
+                    </svg>
+                    SAVECONFIG
+                </button>
+            </div>
+        </section>
 
-        <label>Fin de ligne
-            <select id="eol">
-                <option value="\r\n" selected>CRLF</option>
-                <option value="\n">LF</option>
-                <option value="\r">CR</option>
-            </select>
-        </label>
-
-        <label>Délai entre commandes (s)
-            <input id="delay" type="number" min="0" step="0.1" value="5">
-        </label>
+        <!-- Terminal : journal + commande unique -->
+        <section class="card adv-terminal">
+            <div class="adv-terminal-head">
+                <span class="adv-terminal-title">Terminal</span>
+                <label class="check">
+                    <input type="checkbox" id="showNmea">
+                    NMEA
+                </label>
+                <button id="clear" class="icon-btn" title="Effacer le terminal" aria-label="Effacer le terminal">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M3 6h18" />
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                        <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                    </svg>
+                </button>
+            </div>
+            <div id="log" class="uart-terminal adv-log" aria-live="polite"></div>
+            <form id="singleCmdForm" class="adv-single" autocomplete="off">
+                <span class="adv-prompt" aria-hidden="true">&gt;</span>
+                <input id="singleCmd" type="text" spellcheck="false" placeholder="Commande unique (ex. VERSIONA)" aria-label="Commande unique">
+                <button type="submit" class="btn btn-primary">Envoyer ↵</button>
+            </form>
+        </section>
     </div>
 
-    <div class="row">
-        <label>Fichier de configuration
-            <select id="configSelect">
-                <option value="">— Choisir un fichier (conf_files) —</option>
-            </select>
-            <button id="refreshList" class="inline-btn" title="Rafraîchir la liste">↻</button>
-        </label>
-
-        <label>ou charger un fichier personnel
-            <input id="configFile" type="file" accept=".txt,.cfg,.conf,.ini,.log,.nmea,.csv,.*" />
-        </label>
+    <!-- Map (position, RTK corrections) -->
+    <div class="settings-modal" id="mapModal">
+      <div class="settings-content map-content" role="dialog" aria-label="Carte">
+        <div class="map-banner">
+          <!-- Rendered on each position (fix, satellites, precision, corrections) -->
+          <div class="map-stats" id="mapStats"></div>
+          <button class="map-recenter" id="mapRecenter" title="Recentrer sur la position">Recentrer</button>
+          <button class="close-btn map-close" id="closeMapModal" title="Fermer la carte" aria-label="Fermer la carte">✕</button>
+        </div>
+        <div id="map" class="map"></div>
+      </div>
     </div>
-
-    <textarea id="cmd"
-        placeholder="Collez/éditez vos commandes ici (une par ligne). Les lignes vides et celles commençant par #, // ou ; seront ignorées."></textarea>
-
-    <div class="toolbar">
-        <button id="send">➡️ Envoyer (multi-lignes)</button>
-        <button id="save">💾 SAVECONFIG</button>
-        <button id="clear">🧹 Effacer le log</button>
-        <label class="muted" style="display:inline-flex; align-items:center; gap:6px;">
-            <input type="checkbox" id="waitAck" checked>
-            Attendre acquittement
-        </label>
-        <label class="muted" style="display:inline-flex; align-items:center; gap:6px;">
-            <input type="checkbox" id="showNmea">
-            Afficher NMEA
-        </label>
-        <span class="muted">Astuce : gardez CRLF si requis par le firmware.</span>
-    </div>
-
-    <pre id="log">— Log —</pre>
 
     <footer>
-        <span class="footer-credit">© 2026 by
-            <img src="static/logo.png" alt="Centipede-RTK" class="logo" />
-            <span class="footer-amp">&amp;</span>
-            <img src="static/natuition-logo.png" alt="NATUITION" class="logo" />
-        </span>
-        <a href="https://github.com/natuition/WebSerial-CRTK" target="_blank" rel="noopener">
-            <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-                <path fill="currentColor"
-                    d="M8 .2a8 8 0 0 0-2.53 15.59c.4.07.55-.17.55-.38v-1.34c-2.25.49-2.72-1.08-2.72-1.08-.37-.95-.9-1.2-.9-1.2-.74-.51.06-.5.06-.5.82.06 1.25.85 1.25.85.73 1.24 1.92.88 2.39.67.07-.53.28-.88.5-1.08-1.8-.2-3.7-.9-3.7-4a3.14 3.14 0 0 1 .84-2.18 2.9 2.9 0 0 1 .08-2.15s.68-.22 2.22.83a7.6 7.6 0 0 1 4.05 0c1.54-1.05 2.22-.83 2.22-.83.45 1.08.17 1.89.09 2.09a3.13 3.13 0 0 1 .84 2.18c0 3.11-1.9 3.8-3.71 4 .29.25.54.73.54 1.48v2.2c0 .21.15.45.55.38A8 8 0 0 0 8 .2Z" />
-            </svg>
-            github.com/natuition/WebSerial-CRTK
-        </a>
+      <span class="footer-credit">© 2026 by
+        <img src="static/logo.png" alt="Centipede-RTK" class="logo" />
+        <span class="footer-amp">&amp;</span>
+        <img src="static/natuition-logo.png" alt="NATUITION" class="logo" />
+      </span>
+      <a href="https://github.com/natuition/WebSerial-CRTK" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+          <path fill="currentColor"
+            d="M8 .2a8 8 0 0 0-2.53 15.59c.4.07.55-.17.55-.38v-1.34c-2.25.49-2.72-1.08-2.72-1.08-.37-.95-.9-1.2-.9-1.2-.74-.51.06-.5.06-.5.82.06 1.25.85 1.25.85.73 1.24 1.92.88 2.39.67.07-.53.28-.88.5-1.08-1.8-.2-3.7-.9-3.7-4a3.14 3.14 0 0 1 .84-2.18 2.9 2.9 0 0 1 .08-2.15s.68-.22 2.22.83a7.6 7.6 0 0 1 4.05 0c1.54-1.05 2.22-.83 2.22-.83.45 1.08.17 1.89.09 2.09a3.13 3.13 0 0 1 .84 2.18c0 3.11-1.9 3.8-3.71 4 .29.25.54.73.54 1.48v2.2c0 .21.15.45.55.38A8 8 0 0 0 8 .2Z" />
+        </svg>
+        github.com/natuition/WebSerial-CRTK
+      </a>
     </footer>
 
     <script src="static/js/script.js"></script>
     <script src="static/js/index-advanced-script.js"></script>
+    <script src="static/js/nmea-map.js"></script>
 </body>
 
 </html>

@@ -2,11 +2,13 @@
    Centipede-RTK Web Serial - JavaScript for index.html (beginner mode)
    ======================================== */
 
-// Set config source for this page
-window.CONFIG_SOURCE = 'user';
-
 // bascule Débutant -> Avancé
 document.addEventListener('DOMContentLoaded', () => {
+    // The advanced page is desktop only: no switch on phones
+    if (isPhoneDevice()) {
+        document.querySelector('.mode-switch-container')?.classList.add('hidden');
+        return;
+    }
     const sw = document.getElementById('modeSwitch');
     if (!sw) return;
     // Sur la page Débutant, le toggle doit être en position "Débutant" (OFF)
@@ -34,16 +36,6 @@ function isNmeaLine(message) {
     return typeof message === 'string' && /^\$[A-Z]{5},/.test(message);
 }
 
-/**
- * Show the connected device in the status pill (null = not connected)
- */
-function setDeviceStatus(label) {
-    const statusEl = $('#deviceStatus');
-    const nameEl = $('#deviceName');
-    if (nameEl) nameEl.textContent = label || 'Non connecté';
-    if (statusEl) statusEl.classList.toggle('connected', !!label);
-}
-
 function updateTransportUi() {
     const transport = $('#transport')?.value || 'serial';
     const baudEl = $('#baud');
@@ -51,18 +43,7 @@ function updateTransportUi() {
         baudEl.disabled = (transport === 'ble');
     }
 
-    // Update transport icons
-    const usbIcon = document.querySelector('.transport-icon.usb-icon');
-    const bleIcon = document.querySelector('.transport-icon.ble-icon');
-    if (usbIcon && bleIcon) {
-        if (transport === 'serial') {
-            usbIcon.style.display = 'block';
-            bleIcon.style.display = 'none';
-        } else {
-            usbIcon.style.display = 'none';
-            bleIcon.style.display = 'block';
-        }
-    }
+    updateTransportIcons(transport);
 }
 
 /**

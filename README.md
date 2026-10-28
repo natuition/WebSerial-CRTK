@@ -4,7 +4,7 @@ Outil web minimaliste pour **configurer des récepteurs GNSS** (ex. Unicore **UM
 Deux interfaces au choix :
 
 * **Débutant** : sélection guidée d’une **configuration prête à l’emploi**
-* **Avancé** : chargement et envoi d’un **fichier .cfg** (multi-commandes) depuis `conf_files/advanced` ou un fichier local.
+* **Avancé** (ordinateur uniquement) : édition et envoi des mêmes configurations (multi-commandes) ou d’un fichier local, avec terminal.
 
 > ℹ️ Le site démo GitHub Pages nécessite **HTTPS** (Web Serial) ; en **local** `http://localhost` est autorisé.
 
@@ -45,17 +45,12 @@ Deux interfaces au choix :
 ├── index.html                  # Interface Débutant
 ├── index_advanced.html         # Interface Avancé
 ├── conf_files/
-│   ├── user/                   # Configs guidées (débutant)
-│   │   ├── manifest.json       # Libellés + emoji -> fichiers .cfg
-│   │   ├── NavX_GNSS_Openfield.cfg
-│   │   ├── NavX_GNSS_Mixed.cfg
-│   │   ├── NavX_GNSS_Town.cfg
-│   │   └── NavX_bluetooth.cfg
-│   └── advanced/               # Configs contributives (avancé)
-│       ├── NavX_GNSS_Openfield.cfg
-│       ├── NavX_GNSS_Mixed.cfg
-│       ├── NavX_GNSS_Town.cfg
-│       └── NavX_bluetooth.cfg
+│   ├── usb/                    # Configs USB (RTK + Fast static)
+│   │   ├── manifest.json       # Libellés + emoji + "group" -> sous-titres
+│   │   └── NavX_GNSS_*.cfg
+│   └── ble/                    # Configs Bluetooth (RTK + Fast static)
+│       ├── manifest.json       # + "group" -> sous-titres
+│       └── NavX_GNSS_*.cfg
 └── static/
     ├── css/
     │   ├── styles.css
@@ -67,8 +62,9 @@ Deux interfaces au choix :
     └── logo.png
 ```
 
-* `conf_files/user` : piloté par **manifest.json** (libellés + emoji) pour les débutants.
-* `conf_files/advanced` : **noms de fichiers** affichés tels quels (contributions communautaires facilitées).
+* `conf_files/usb` : configurations **USB**, pilotées par **manifest.json** (libellés + emoji).
+* `conf_files/ble` : configurations **Bluetooth** (sans FRESET ni changement de baud), même principe ; le champ `group` du manifest crée les sous-titres (RTK / Fast static).
+* Les deux interfaces utilisent ces mêmes dossiers, selon le transport choisi.
 
 ---
 
@@ -167,7 +163,7 @@ docker-compose down
 
 1. **Connecter** → choisir le port série.
 2. **Fin de ligne** : **CRLF** conseillé (`\r\n`).
-3. **Charger** un **fichier .cfg** depuis `conf_files/advanced`, via **Browse…** (fichier local) ou écrire/editer directement les commandes dans la zone de texte.
+3. **Charger** une configuration (mêmes listes que l’interface Débutant, selon le transport), un fichier local, ou écrire/éditer directement les commandes dans la zone de texte.
 4. **Envoyer (multi-lignes)** : envoie toutes les lignes (vides et commentaires `#`, `//`, `;` ignorés).
 5. La console affiche le détail :
 
@@ -208,7 +204,7 @@ docker-compose down
 
 ## Manifest débutant (avec emoji)
 
-`conf_files/user/manifest.json` :
+`conf_files/usb/manifest.json` :
 
 ```json
 {
@@ -222,7 +218,7 @@ docker-compose down
 }
 ```
 
-> Vous pouvez **ajouter/retirer** des entrées librement. Les fichiers référencés doivent exister dans `conf_files/user/`.
+> Vous pouvez **ajouter/retirer** des entrées librement. Les fichiers référencés doivent exister dans `conf_files/usb/`.
 
 ---
 
@@ -247,8 +243,8 @@ docker-compose down
 
 * **Contributions** :
 
-  * Ajoutez vos configs dans `conf_files/advanced` (noms explicites).
-  * Pour l’interface Débutant, exposez-les via `conf_files/user/manifest.json` (labels + emoji).
+  * Ajoutez vos configs dans `conf_files/usb` (USB) et/ou `conf_files/ble` (Bluetooth).
+  * Déclarez-les dans le `manifest.json` du dossier (labels + emoji, `group` optionnel) : elles apparaissent dans les deux interfaces.
 
 ---
 

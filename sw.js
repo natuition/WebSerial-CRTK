@@ -1,4 +1,4 @@
-const CACHE = 'webserial-crtk-v10';
+const CACHE = 'webserial-crtk-v14';
 const NETWORK_TIMEOUT_MS = 3000;
 const PRECACHE_URLS = [
     '/',
@@ -18,24 +18,20 @@ const PRECACHE_URLS = [
     '/static/icons/logo-192.png',
     '/static/icons/logo-512.png',
     '/static/icons/navx-favicon.png',
-    '/conf_files/advanced/manifest.json',
-    '/conf_files/advanced/NavX_bluetooth.cfg',
-    '/conf_files/advanced/NavX_GNSS_Mixed.cfg',
-    '/conf_files/advanced/NavX_GNSS_Openfield.cfg',
-    '/conf_files/advanced/NavX_GNSS_Town.cfg',
-    '/conf_files/advanced/RTKBase_GNSS_UM980.cfg',
-    '/conf_files/advanced/RTKBase_GNSS_UM982.cfg',
-    '/conf_files/user/manifest.json',
-    '/conf_files/user/NavX_GNSS_Mixed.cfg',
-    '/conf_files/user/NavX_GNSS_Openfield.cfg',
-    '/conf_files/user/NavX_GNSS_Town.cfg',
-    '/conf_files/user_ble/manifest.json',
-    '/conf_files/user_ble/NavX_GNSS_Mixed.cfg',
-    '/conf_files/user_ble/NavX_GNSS_Openfield.cfg',
-    '/conf_files/user_ble/NavX_GNSS_Town.cfg',
-    '/conf_files/user_ble/NavX_GNSS_Fast_static_Mixed.cfg',
-    '/conf_files/user_ble/NavX_GNSS_Fast_static_Openfield.cfg',
-    '/conf_files/user_ble/NavX_GNSS_Fast_static_Town.cfg'
+    '/conf_files/usb/manifest.json',
+    '/conf_files/usb/NavX_GNSS_Mixed.cfg',
+    '/conf_files/usb/NavX_GNSS_Openfield.cfg',
+    '/conf_files/usb/NavX_GNSS_Town.cfg',
+    '/conf_files/usb/NavX_GNSS_Fast_static_Mixed.cfg',
+    '/conf_files/usb/NavX_GNSS_Fast_static_Openfield.cfg',
+    '/conf_files/usb/NavX_GNSS_Fast_static_Town.cfg',
+    '/conf_files/ble/manifest.json',
+    '/conf_files/ble/NavX_GNSS_Mixed.cfg',
+    '/conf_files/ble/NavX_GNSS_Openfield.cfg',
+    '/conf_files/ble/NavX_GNSS_Town.cfg',
+    '/conf_files/ble/NavX_GNSS_Fast_static_Mixed.cfg',
+    '/conf_files/ble/NavX_GNSS_Fast_static_Openfield.cfg',
+    '/conf_files/ble/NavX_GNSS_Fast_static_Town.cfg'
 ];
 
 self.addEventListener('install', event => {

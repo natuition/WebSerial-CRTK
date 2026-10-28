@@ -1,9 +1,11 @@
 /* ========================================
-    Centipede-RTK Web Serial - JavaScript for index_advanced.html (advanced mode)
+    Configurateur NavX - JavaScript for index_advanced.html (advanced mode, desktop only)
     ======================================== */
 
-// Set config source for this page
-window.CONFIG_SOURCE = 'advanced';
+// The advanced page is desktop only: phones go back to the beginner page
+if (isPhoneDevice()) {
+    window.location.replace('index.html');
+}
 
 // Bascule Avancé -> Débutant
 document.addEventListener('DOMContentLoaded', () => {
@@ -24,7 +26,42 @@ const logEl = $('#log');
 let advRecvBuffer = '';
 let showNmea = false;
 const MIN_INTER_COMMAND_DELAY_MS = 500;
+// Keep the terminal light when NMEA is displayed for a long time
+const MAX_LOG_LINES = 2000;
 let waitAck = true;
+let pendingReceivedResolvers = [];
+// Single command line history (arrow up / down)
+const singleCmdHistory = [];
+let singleCmdHistoryIndex = -1;
+
+/**
+ * Wait for the next received line matching the RegExp (or string), with optional timeout.
+ * Resolved by the read loop (notifyReceived) when a matching line arrives.
+ */
+function waitForReceivedMatching(regexOrStr, timeoutMs) {
+    const re = (regexOrStr instanceof RegExp) ? regexOrStr : new RegExp(String(regexOrStr), 'i');
+    return new Promise((resolve, reject) => {
+        if (!reader) return reject(new Error('No reader available'));
+        const id = Symbol('waiter');
+        const timer = (typeof timeoutMs === 'number' && timeoutMs > 0) ? setTimeout(() => {
+            pendingReceivedResolvers = pendingReceivedResolvers.filter(w => w.id !== id);
+            reject(new Error('timeout'));
+        }, timeoutMs) : null;
+        pendingReceivedResolvers.push({ id, resolve, reject, timer, predicate: (m) => re.test(String(m)) });
+    });
+}
+
+function notifyReceived(message) {
+    if (!pendingReceivedResolvers.length) return;
+    const idx = pendingReceivedResolvers.findIndex(w => {
+        try { return !w.predicate || w.predicate(String(message)); } catch { return false; }
+    });
+    if (idx >= 0) {
+        const waiter = pendingReceivedResolvers.splice(idx, 1)[0];
+        try { clearTimeout(waiter.timer); } catch { }
+        try { waiter.resolve(message); } catch { }
+    }
+}
 
 function isNmeaLine(message) {
     return typeof message === 'string' && /^\$[A-Z]{5},/.test(message);
@@ -36,37 +73,51 @@ function updateTransportUi() {
     if (baudEl) {
         baudEl.disabled = (transport === 'ble');
     }
-    const nameEl = $('#deviceName');
-    if (nameEl && transport === 'serial') nameEl.textContent = '—';
+    updateTransportIcons(transport);
 }
 
 /* ---------------------- UI Functions ---------------------- */
-function logLine(s) {
-    logEl.textContent += (s ?? '') + '\n';
+/**
+ * Appends a terminal line. type: sent | received | info | warn | error
+ */
+function logLine(s, type = 'info') {
+    const line = document.createElement('div');
+    const time = new Date().toLocaleTimeString('fr-FR', { hour12: false });
+    const prefix = type === 'sent' ? '→ ' : type === 'received' ? '← ' : '';
+    line.innerHTML = `<span class="timestamp">[${time}]</span> <span class="${type}">${escapeHtml(prefix + (s ?? ''))}</span>`;
+    logEl.appendChild(line);
+    while (logEl.childElementCount > MAX_LOG_LINES) logEl.firstElementChild.remove();
     logEl.scrollTop = logEl.scrollHeight;
 }
 
 function clearLog() {
-    logEl.textContent = '— Log —\n';
+    logEl.innerHTML = '';
+}
+
+function updateProgress(done, total) {
+    $('#progressFill').style.width = (total ? (done / total) * 100 : 0) + '%';
+    $('#progressText').textContent = `${done}/${total}`;
 }
 
 /* ---------------------- Event Handlers ---------------------- */
 document.addEventListener('DOMContentLoaded', async () => {
-    // Initialize configuration list
+    // Initialize configuration list (populateConfigSelect logs the result itself)
     try {
         const result = await populateConfigSelect(false);
-        if (result[0].length > 0) {
-            logLine(`✓ ${result[0].length} file(s) via ${result[1]}.`);
-        } else {
-            logLine('ℹ️ Unable to list conf_files/ (auto-index or API). Use the "personal file" button or add conf_files/index.json.');
+        if (!result?.[0]?.length) {
+            logLine('Impossible de lister les configurations. Chargez un fichier personnel.', 'warn');
         }
     } catch (e) {
-        logLine('✗ Error loading configurations');
+        logLine('✗ Erreur lors du chargement des configurations', 'error');
     }
 
     const transportSel = $('#transport');
     if (transportSel) {
-        transportSel.addEventListener('change', updateTransportUi);
+        // USB and BLE have their own configuration folders (conf_files/usb, conf_files/ble)
+        transportSel.addEventListener('change', () => {
+            updateTransportUi();
+            populateConfigSelect(false);
+        });
         updateTransportUi();
     }
 
@@ -75,7 +126,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         showNmea = !!showNmeaEl.checked;
         showNmeaEl.addEventListener('change', () => {
             showNmea = !!showNmeaEl.checked;
-            logLine(showNmea ? 'ℹ️ NMEA affiché' : 'ℹ️ NMEA masqué');
+            logLine(showNmea ? 'NMEA affiché' : 'NMEA masqué');
         });
     }
 
@@ -84,13 +135,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         waitAck = !!waitAckEl.checked;
         waitAckEl.addEventListener('change', () => {
             waitAck = !!waitAckEl.checked;
-            logLine(waitAck ? 'ℹ️ Attente d’acquittement activée' : 'ℹ️ Attente d’acquittement désactivée');
+            logLine(waitAck ? 'Attente d’acquittement activée' : 'Attente d’acquittement désactivée');
         });
     }
 });
-
-// Rafraîchir la liste
-$('#refreshList').onclick = () => populateConfigSelect(true);
 
 // Configuration select
 $('#configSelect').onchange = async (ev) => {
@@ -99,9 +147,10 @@ $('#configSelect').onchange = async (ev) => {
     try {
         const result = await loadConfigFromUrl(url);
         $('#cmd').value = result.content;
-        logLine('✓ Chargé: ' + url);
+        $('#configFile').value = '';
+        logLine('✓ Configuration chargée : ' + url.split('/').pop());
     } catch (e) {
-        logLine('✗ ' + e.message);
+        logLine('✗ ' + e.message, 'error');
     }
 };
 
@@ -113,9 +162,9 @@ $('#configFile').onchange = async (ev) => {
         const result = await loadConfigFromFile(f);
         $('#cmd').value = result.content;
         $('#configSelect').value = ''; // deselect conf_files menu
-        logLine('✓ File loaded: ' + result.filename);
+        logLine('✓ Fichier chargé : ' + result.filename);
     } catch (e) {
-        logLine('✗ ' + e.message);
+        logLine('✗ ' + e.message, 'error');
     }
 };
 
@@ -136,28 +185,34 @@ $('#connect').onclick = async () => {
                     advRecvBuffer = parts.pop();
                     parts.forEach(p => {
                         if (!p.length) return;
+                        notifyReceived(p);
+                        handleNmeaForMap(p);
                         if (!showNmea && isNmeaLine(p)) return;
-                        logLine(p);
+                        logLine(p, 'received');
                     });
                 }
             } catch (e) {
-                logLine('✗ Read error: ' + e.message);
+                logLine('✗ Erreur de lecture : ' + e.message, 'error');
             }
         })();
 
-        $('#connect').disabled = true;
+        $('#connect').classList.add('hidden');
+        $('#disconnect').classList.remove('hidden');
         $('#disconnect').disabled = false;
         if (result?.transport === 'ble') {
-            const nameEl = $('#deviceName');
-            if (nameEl) nameEl.textContent = result.deviceName || 'BLE device';
-            logLine('✓ Connected BLE (' + (result.deviceName || 'device') + ')');
+            setDeviceStatus(result.deviceName || 'Appareil Bluetooth');
+            logLine(`✓ Connecté en Bluetooth (${result.deviceName || 'appareil'})`);
         } else {
-            const nameEl = $('#deviceName');
-            if (nameEl) nameEl.textContent = '—';
-            logLine('✓ Connected @ ' + result.baudRate + ' baud');
+            setDeviceStatus(`USB · ${result.baudRate} baud`);
+            logLine(`✓ Connecté en USB à ${result.baudRate} bauds`);
         }
     } catch (e) {
-        logLine('✗ Connection error: ' + (e?.message || e));
+        // Device chooser closed without selection: not an error
+        if (e?.name === 'NotFoundError') {
+            logLine('Aucun appareil sélectionné.');
+            return;
+        }
+        logLine('✗ Erreur de connexion : ' + (e?.message || e), 'error');
     }
 };
 
@@ -165,39 +220,42 @@ $('#disconnect').onclick = async () => {
     try {
         await disconnectTransport();
 
-        $('#connect').disabled = false;
+        $('#connect').classList.remove('hidden');
+        $('#disconnect').classList.add('hidden');
         $('#disconnect').disabled = true;
-        const nameEl = $('#deviceName');
-        if (nameEl) nameEl.textContent = '—';
-        logLine('⏏️ Disconnected');
+        setDeviceStatus(null);
+        resetMapPosition();
+        logLine('Déconnecté');
     } catch (e) {
-        logLine('✗ Disconnection: ' + (e?.message || e));
+        logLine('✗ Erreur de déconnexion : ' + (e?.message || e), 'error');
     }
 };
 
 /* ---------------------- Send Commands ---------------------- */
 $('#send').onclick = async () => {
-    if (!writer) { logLine('✗ Not connected.'); return; }
-    if (sendingBatch) { logLine('⌛ Already in progress. Please wait…'); return; }
+    if (!writer) { logLine('✗ Non connecté.', 'error'); return; }
+    if (sendingBatch) { logLine('Envoi déjà en cours, veuillez patienter…', 'warn'); return; }
 
     const raw = $('#cmd').value || '';
     let lines = raw.split('\n')
         .map(s => s.trim())
         .filter(s => s.length && !s.startsWith('#') && !s.startsWith('//') && !s.startsWith(';'));
 
-    if (!lines.length) { logLine('ℹ️ Nothing to send.'); return; }
+    if (!lines.length) { logLine('Rien à envoyer.', 'warn'); return; }
 
     const delaySec = Math.max(0, parseFloat($('#delay').value || '5') || 5);
     const eol = getEOL();
 
     sendingBatch = true;
     $('#send').disabled = true;
+    updateProgress(0, lines.length);
     try {
-        logLine(`▶️ Sending ${lines.length} command(s), delay ${delaySec}s…`);
+        logLine(`▶️ Envoi de ${lines.length} commande(s), délai ${delaySec} s…`);
         for (let i = 0; i < lines.length; i++) {
             const cmd = lines[i];
             if (cmd.trim().toUpperCase() === 'FRESET' && currentTransport === 'ble') {
-                logLine(`⏭️ [${i + 1}/${lines.length}] FRESET ignoré en BLE`);
+                logLine(`⏭️ [${i + 1}/${lines.length}] FRESET ignoré en Bluetooth`, 'warn');
+                updateProgress(i + 1, lines.length);
                 await sleep(MIN_INTER_COMMAND_DELAY_MS);
                 continue;
             }
@@ -207,26 +265,23 @@ $('#send').onclick = async () => {
                 : null;
 
             await writer.write(cmd + eol);
-            logLine(`→ [${i + 1}/${lines.length}] ${cmd}`);
+            logLine(`[${i + 1}/${lines.length}] ${cmd}`, 'sent');
 
             const sleepPromise = sleep(MIN_INTER_COMMAND_DELAY_MS);
             if (waitAck) {
-                try {
-                    if (waiterPromise) {
-                        await Promise.all([sleepPromise, waiterPromise]);
-                    } else {
-                        await sleepPromise;
-                    }
-                } catch (err) {
-                    logLine(`⚠️ No response after ${delaySec}s — continuing`);
+                // The waiter resolves to null on timeout
+                const [, response] = await Promise.all([sleepPromise, waiterPromise]);
+                if (waiterPromise && response === null) {
+                    logLine(`⚠️ Pas de réponse après ${delaySec} s, on continue`, 'warn');
                 }
             } else {
                 await sleep(delaySec * 1000);
             }
+            updateProgress(i + 1, lines.length);
         }
-        logLine('✅ Batch completed.');
+        logLine('✅ Envoi terminé.');
     } catch (e) {
-        logLine('✗ Send interrupted: ' + (e?.message || e));
+        logLine('✗ Envoi interrompu : ' + (e?.message || e), 'error');
     } finally {
         sendingBatch = false;
         $('#send').disabled = false;
@@ -235,14 +290,47 @@ $('#send').onclick = async () => {
 
 $('#save').onclick = async () => {
     try {
-        const result = await sendSaveConfig();
-        logLine('→ SAVECONFIG');
+        await sendSaveConfig();
+        logLine('SAVECONFIG', 'sent');
     } catch (e) {
-        logLine('✗ ' + e.message);
+        logLine('✗ ' + e.message, 'error');
     }
 };
 
 $('#clear').onclick = () => clearLog();
+
+// Single command line: Enter sends, arrow up / down browse the history
+$('#singleCmdForm').onsubmit = async (ev) => {
+    ev.preventDefault();
+    const input = $('#singleCmd');
+    const cmd = input.value.trim();
+    if (!cmd) return;
+    if (!writer) { logLine('✗ Non connecté.', 'error'); return; }
+    if (sendingBatch) { logLine('Envoi déjà en cours, veuillez patienter…', 'warn'); return; }
+    try {
+        await writer.write(cmd + getEOL());
+        logLine(cmd, 'sent');
+        if (singleCmdHistory[singleCmdHistory.length - 1] !== cmd) singleCmdHistory.push(cmd);
+        singleCmdHistoryIndex = -1;
+        input.value = '';
+    } catch (e) {
+        logLine('✗ ' + (e?.message || e), 'error');
+    }
+};
+
+$('#singleCmd').addEventListener('keydown', (ev) => {
+    if (!singleCmdHistory.length || (ev.key !== 'ArrowUp' && ev.key !== 'ArrowDown')) return;
+    ev.preventDefault();
+    if (ev.key === 'ArrowUp') {
+        singleCmdHistoryIndex = (singleCmdHistoryIndex < 0)
+            ? singleCmdHistory.length - 1
+            : Math.max(0, singleCmdHistoryIndex - 1);
+    } else if (singleCmdHistoryIndex >= 0) {
+        singleCmdHistoryIndex++;
+        if (singleCmdHistoryIndex >= singleCmdHistory.length) singleCmdHistoryIndex = -1;
+    }
+    ev.target.value = singleCmdHistoryIndex < 0 ? '' : singleCmdHistory[singleCmdHistoryIndex];
+});
 
 // Register service worker for offline / PWA
 if ('serviceWorker' in navigator) {
@@ -250,4 +338,3 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js').catch(err => console.warn('SW registration failed:', err));
     });
 }
-
