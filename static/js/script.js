@@ -276,10 +276,6 @@ async function disconnectTransport() {
 }
 
 /* ---------------------- Configuration files listing ---------------------- */
-// GitHub configuration
-const GH_OWNER = 'jancelin';
-const GH_REPO = 'WebSerial-CRTK';
-const GH_BRANCH_CANDIDATES = ['gh-pages', 'main', 'master'];
 const ALLOWED_EXT = /\.(txt|cfg|conf|ini|nmea|csv|log)$/i;
 // Resolve base folder depending on interface ---
 function getConfigBase() {
@@ -319,15 +315,6 @@ async function populateConfigSelect(manual) {
         if (typeof updateStatus === 'function') updateStatus(`${options.length} fichier(s) via index local`, 'success');
         else if (typeof logLine === 'function') logLine(`✓ ${options.length} fichier(s) via local.`);
         return [options, "local"];
-    }
-
-    // GitHub API fallback (GitHub Pages)
-    const ghFiles = await tryFetchGitHubAPI();
-    if (ghFiles && ghFiles.length) {
-        addOptions(sel, ghFiles, /*useCleanNames=*/true);
-        if (typeof updateStatus === 'function') updateStatus(`${ghFiles.length} fichier(s) via GitHub API`, 'success');
-        else if (typeof logLine === 'function') logLine(`✓ ${ghFiles.length} fichier(s) via GitHub API.`);
-        return [ghFiles, "github"];
     }
 
     if (typeof updateStatus === 'function') {
@@ -409,28 +396,6 @@ async function tryFetchLocalIndex() {
             .filter(href => !href.endsWith('/'))
             .filter(href => ALLOWED_EXT.test(href));
     } catch { return null; }
-}
-
-/**
- * Attempts to fetch via GitHub API
- */
-async function tryFetchGitHubAPI() {
-    const mode = (window.CONFIG_SOURCE === 'advanced') ? 'advanced' : 'user';
-    const dirPath = `conf_files/${mode}`;
-    for (const branch of GH_BRANCH_CANDIDATES) {
-        try {
-            const apiUrl = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${dirPath}?ref=${encodeURIComponent(branch)}`;
-            const apiResp = await fetch(apiUrl, { cache: 'no-store' });
-            if (!apiResp.ok) continue;
-            const items = await apiResp.json();
-            const files = (Array.isArray(items) ? items : [])
-                .filter(it => it && it.type === 'file' && typeof it.name === 'string' && typeof it.download_url === 'string')
-                .filter(it => ALLOWED_EXT.test(it.name))
-                .map(it => ({ name: it.name, url: it.download_url }));
-            if (files.length) return files;
-        } catch { /* next branch */ }
-    }
-    return null;
 }
 
 /**
