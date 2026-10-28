@@ -3,27 +3,33 @@
   "items": [
     {
       "file": "NavX_GNSS_Openfield.cfg",
-      "label": "___📍_🌳 ROVER • NavX Openfield"
+      "label": "___📍_🌳 ROVER • NavX Openfield",
+      "group": "RTK (temps réel)"
     },
     {
       "file": "NavX_GNSS_Mixed.cfg",
-      "label": "🌳_📍  🏡 ROVER • NavX Mixed"
+      "label": "🌳_📍  🏡 ROVER • NavX Mixed",
+      "group": "RTK (temps réel)"
     },
     {
       "file": "NavX_GNSS_Town.cfg",
-      "label": "🏢_📍 🏬 ROVER • NavX Town"
+      "label": "🏢_📍 🏬 ROVER • NavX Town",
+      "group": "RTK (temps réel)"
     },
     {
       "file": "NavX_GNSS_Fast_static_Openfield.cfg",
-      "label": "___⏱️_🌳 FAST STATIC • NavX Openfield"
+      "label": "___⏱️_🌳 FAST STATIC • NavX Openfield",
+      "group": "Fast static (post-traitement)"
     },
     {
       "file": "NavX_GNSS_Fast_static_Mixed.cfg",
-      "label": "🌳_⏱️  🏡 FAST STATIC • NavX Mixed"
+      "label": "🌳_⏱️  🏡 FAST STATIC • NavX Mixed",
+      "group": "Fast static (post-traitement)"
     },
     {
       "file": "NavX_GNSS_Fast_static_Town.cfg",
-      "label": "🏢_⏱️ 🏬 FAST STATIC • NavX Town"
+      "label": "🏢_⏱️ 🏬 FAST STATIC • NavX Town",
+      "group": "Fast static (post-traitement)"
     }
   ]
 }

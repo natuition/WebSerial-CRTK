@@ -333,11 +333,23 @@ async function populateConfigSelect(manual) {
  * Adds options to the select element
  */
 function addOptions(selectEl, items, useCleanNames = true) {
+    // Items with a manifest "group" go under a non-selectable <optgroup> title (groups keep manifest order)
+    const groups = new Map();
     items
         // FIX: accepter les items manifest (label en name) en vérifiant aussi l'URL
         .filter(it => ALLOWED_EXT.test(it.name || '') || ALLOWED_EXT.test(it.url || ''))
         .sort((a, b) => (a.name || '').localeCompare((b.name || ''), undefined, { sensitivity: 'base' }))
         .forEach(it => {
+            let parent = selectEl;
+            if (it.group) {
+                if (!groups.has(it.group)) {
+                    const og = document.createElement('optgroup');
+                    og.label = it.group;
+                    groups.set(it.group, og);
+                }
+                parent = groups.get(it.group);
+            }
+
             const opt = document.createElement('option');
             opt.value = it.url;
 
@@ -350,8 +362,11 @@ function addOptions(selectEl, items, useCleanNames = true) {
                 opt.textContent = it.name || it.url;
             }
 
-            selectEl.appendChild(opt);
+            parent.appendChild(opt);
         });
+    // Append groups in manifest order (first appearance), not in sorted label order
+    [...new Set(items.map(it => it.group).filter(Boolean))]
+        .forEach(g => groups.has(g) && selectEl.appendChild(groups.get(g)));
 }
 
 /**
@@ -375,7 +390,8 @@ async function tryFetchManifestJSON() {
                 .filter(it => it && typeof it.file === 'string')
                 .map(it => ({
                     name: (typeof it.label === 'string' && it.label.trim()) ? it.label : it.file,
-                    url: `${base}/${it.file}`
+                    url: `${base}/${it.file}`,
+                    group: (typeof it.group === 'string' && it.group.trim()) ? it.group : null
                 }));
         }
         return null;
