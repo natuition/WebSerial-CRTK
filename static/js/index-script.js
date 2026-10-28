@@ -93,25 +93,34 @@ function showProgress(show = true) {
     } else {
         container.classList.add('hidden');
         // Also hide terminal when hiding progress bar
-        $('#uartTerminal').classList.add('hidden');
-        terminalVisible = false;
+        setTerminalVisible(false);
     }
 }
 
-function updateProgress(percentage, text) {
+/**
+ * Progress bar + "done/total" command counter
+ */
+function updateProgress(done, total) {
+    const percentage = total ? (done / total) * 100 : 0;
     $('#progressFill').style.width = percentage + '%';
-    $('#progressText').textContent = text;
+    $('#progressText').textContent = `${done}/${total}`;
+}
+
+/**
+ * Show/hide the UART terminal; the toggle becomes a red close button while it is shown
+ */
+function setTerminalVisible(visible) {
+    terminalVisible = visible;
+    $('#uartTerminal').classList.toggle('hidden', !visible);
+    const toggle = $('#terminalToggle');
+    if (toggle) {
+        toggle.setAttribute('aria-expanded', String(visible));
+        toggle.title = visible ? 'Fermer le terminal UART' : 'Afficher le terminal UART';
+    }
 }
 
 function toggleTerminal() {
-    const terminal = $('#uartTerminal');
-    terminalVisible = !terminalVisible;
-
-    if (terminalVisible) {
-        terminal.classList.remove('hidden');
-    } else {
-        terminal.classList.add('hidden');
-    }
+    setTerminalVisible(!terminalVisible);
 }
 
 function addToTerminal(message, type = 'info') {
@@ -712,7 +721,7 @@ $('#upload').onclick = async () => {
 
     try {
         updateStatus(`Sending ${lines.length} command(s)...`, 'info');
-        updateProgress(0, 'Starting...');
+        updateProgress(0, lines.length);
 
         // Clear terminal and add start message
         clearTerminal();
@@ -722,8 +731,7 @@ $('#upload').onclick = async () => {
             const cmd = lines[i];
             if (cmd.trim().toUpperCase() === 'FRESET' && currentTransport === 'ble') {
                 addToTerminal('⏭️ FRESET ignoré en BLE', 'info');
-                const progress = ((i + 1) / lines.length) * 100;
-                updateProgress(progress, `Command ${i + 1}/${lines.length}: ${cmd.substring(0, 30)}${cmd.length > 30 ? '...' : ''}`);
+                updateProgress(i + 1, lines.length);
                 await sleep(MIN_INTER_COMMAND_DELAY_MS);
                 continue;
             }
@@ -747,8 +755,7 @@ $('#upload').onclick = async () => {
             // Display sent command in terminal
             addToTerminal(cmd + eol.replace(/\n/g, '\\n').replace(/\r/g, '\\r'), 'sent');
 
-            const progress = ((i + 1) / lines.length) * 100;
-            updateProgress(progress, `Command ${i + 1}/${lines.length}: ${cmd.substring(0, 30)}${cmd.length > 30 ? '...' : ''}`);
+            updateProgress(i + 1, lines.length);
 
             // For FRESET: wait for the 3-step reboot sequence: 1) FRESET response OK, 2) 'system is rebooting', 3) '..........'
             // For other commands: wait for the next received chunk (registered before write), and always wait at least MIN_INTER_COMMAND_DELAY_MS
@@ -787,7 +794,7 @@ $('#upload').onclick = async () => {
             }
         }
 
-        updateProgress(100, 'Configuration sent successfully!');
+        updateProgress(lines.length, lines.length);
         updateStatus('Configuration sent successfully!', 'success');
         addToTerminal('=== End of configuration ===');
 
