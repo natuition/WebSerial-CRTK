@@ -500,6 +500,17 @@ h1 {
   overflow-wrap: anywhere;
 }
 
+/* Group title row (RTK / Fast static), like the selector's <optgroup> */
+.config-summary-table .config-summary-group th {
+  background: transparent;
+  color: var(--primary);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding-top: 16px;
+  border-bottom: 2px solid #cde8d3;
+}
+
 .config-summary-table tr:last-child td {
   border-bottom: none;
 }

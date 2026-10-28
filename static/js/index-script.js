@@ -210,18 +210,25 @@ async function renderConfigSummaryTable() {
         try {
             const result = await loadConfigFromUrl(it.url);
             const desc = extractConfigDescription(result.content);
-            return { label: it.name || it.url, desc };
+            return { label: it.name || it.url, group: it.group, desc };
         } catch {
-            return { label: it.name || it.url, desc: null };
+            return { label: it.name || it.url, group: it.group, desc: null };
         }
     }));
 
+    // Same "group" titles as the selector (manifest order), e.g. RTK / Fast static in BLE
+    let currentGroup = null;
     const bodyHtml = rows.map(r => {
+        let groupRow = '';
+        if (r.group && r.group !== currentGroup) {
+            currentGroup = r.group;
+            groupRow = `<tr class="config-summary-group"><th colspan="2">${escapeHtml(r.group)}</th></tr>`;
+        }
         const title = r.desc?.title ? `<div class="config-summary-desc-title">${escapeHtml(r.desc.title)}</div>` : '';
         const details = (r.desc?.details?.length)
             ? `<ul class="config-summary-desc-list">${r.desc.details.map(d => `<li>${escapeHtml(d)}</li>`).join('')}</ul>`
             : '<span class="muted">—</span>';
-        return `<tr><td>${escapeHtml(r.label)}</td><td>${title}${details}</td></tr>`;
+        return `${groupRow}<tr><td>${escapeHtml(r.label)}</td><td>${title}${details}</td></tr>`;
     }).join('');
 
     container.innerHTML = `
