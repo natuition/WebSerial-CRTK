@@ -35,10 +35,6 @@ h1 {
   gap: clamp(8px, 2vw, 16px);
 }
 
-.brand .brand-amp {
-  color: var(--primary);
-}
-
 .brand .logo {
   height: clamp(2rem, 6vw, 3rem);
   width: auto;
@@ -180,6 +176,26 @@ button:focus-visible {
   box-shadow: 0 2px 6px rgba(40, 167, 69, 0.2);
 }
 
+/* Destructive action (e.g. disconnect): outlined, so it doesn't compete with the primary action */
+.btn-danger-outline,
+.btn.btn-danger-outline {
+  background: white;
+  color: var(--danger);
+  border: 2px solid var(--danger);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.15);
+}
+
+.btn-danger-outline:hover:not([disabled]) {
+  background: #fff3f4;
+  box-shadow: 0 6px 20px rgba(220, 53, 69, 0.25);
+  transform: translateY(-2px);
+}
+
+.btn-danger-outline:active:not([disabled]) {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(220, 53, 69, 0.15);
+}
+
 /* Common form elements */
 select,
 input[type="number"],
@@ -220,6 +236,22 @@ footer {
   font-size: clamp(0.8rem, 1.8vw, 0.9rem);
   color: #666;
   flex-wrap: wrap;
+}
+
+footer .footer-credit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+footer .footer-credit .logo {
+  height: clamp(1.8rem, 4vw, 2.25rem);
+  width: auto;
+}
+
+footer .footer-amp {
+  color: var(--dark);
+  font-weight: 700;
 }
 
 footer a {

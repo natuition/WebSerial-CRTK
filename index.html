@@ -3,11 +3,11 @@
 
 <head>
   <meta charset="utf-8" />
-  <title>Centipede-RTK Web Serial</title>
+  <title>Configurateur NavX (Web Serial)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#0c9042">
-  <link rel="icon" type="image/png" href="static/logo.png" />
+  <link rel="icon" type="image/png" href="static/icons/navx-favicon.png" />
   <link rel="stylesheet" href="static/css/styles.css">
   <link rel="stylesheet" href="static/css/index-styles.css">
 </head>
@@ -27,34 +27,43 @@
 
   <div class="main-content">
     <h1 class="brand">
-      <img src="static/logo.png" alt="Centipede-RTK" class="logo" />
-      <span class="brand-amp">&amp;</span>
-      <img src="static/natuition-logo.png" alt="NATUITION" class="logo" />
-      Centipede-RTK Web Serial
+      <img src="static/navx-logo.png" alt="NavX" class="logo" />
+      Configurateur NavX (Web Serial)
     </h1>
 
     <div class="main-container">
       <!-- Boutons principaux + Baud -->
       <div class="control-group">
-        <div class="control-row connect-row mobile-connect-row" style="align-items: stretch;">
-          <button id="connect" class="btn btn-primary" style="flex: 1; height: 75px; min-width: 120px;">🔌
-            Connecter</button>
-          <button id="disconnect" class="btn btn-primary hidden" disabled
-            style="flex: 1; height: 75px; min-width: 120px;">⏏️ Déconnecter</button>
-          <div style="flex: 1; height: 75px; display: flex; flex-direction: column; justify-content: center">
-            <div class="transport-selector" style="flex: 1; display: flex; align-items: center; min-width: 0;">
-              <img class="transport-icon usb-icon"
-                src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAACx0lEQVR4nO2X22vTUBzHo8LAv0HwL/ECgi/LSc/pkjzIRLwwmCs5c0Pdkpe+CLbKhiIOrFMfVNDVnbOCDyqu0r6sCpKxG7r2zctkMtjwgg/KkXZbbbJ26WnWZI584feUC5/P79wSQQgSpPkx3xWYm/IAcfMEAn7HDAR8jrlTBBRsWMoOWuu63/xCIOB3zJ2yBsxAwKeYgYDPMf9HATUabZE1I65o+mf79shbMjY+KViPFd/pmYCC9Zhb8I2lx7wT0Nx3vspILHgngLe6+6sVCNSbQADvRIGefiaOhU4ACkdFgvIiQT8AQSuAwjmRoHsSQVAdUfdsS4Hw5S4mPVIYoGjTEgmakUbDR7ePQLfO4NBJR3BQKUHhH5EgfVsI8MIDS8Hzvgqg+FkX8Kg4Er9FCg/6I9DTz8Bj5zkPKgqlZHZpImqXeCMwYZfnAuhKJxc8TMksNf+AFZZybHjqBpNo+N91gg57LhC6287V+dT8wxL8el3I9FbuTIPcAjLWv7kRkJJtG0C1dIRFxrsc4W+aA9ZnCcryj4BmTLua/3b48QibXcyyua9Z1p3G5Wkzlr9vgb81ea3ablTgF8D61YYFzum2+d3Gch+flSFnFjOs+5W2ofND5mCtwy3PLaD2GPtkzfjZqARIyhaIjhcdbPJLugybX5qoC35tCmW4BVZHof/UVi7iM89Ps7cLLy3ghaUcS0xedzoPBoRGI2OjU8HGL+5tNF59G7VLJBzgi9U6FjokuImK+/aX1oRmTMua8d0JXsbGstJ7MQuehFc2k0jUAQ8ofN3QQeaUWvCV9wCCOmuBHXvaXtenBCDowJbD1ytQjEjQbZ4TGVgXb29T4HkE1BG1RSRomPtzmsK+psHzCKxn7U/sQx1dn5JGw0eaCt+IQDHqiLq3laDjgKAkoPB96ZeSwmWRoFlA4R1AoRSNRnc3HT5IEKGcv9WwF3+CjnqdAAAAAElFTkSuQmCC"
-                alt="usb-connected">
-              <select id="transport" class="transport-select">
-                <option value="serial">USB-C</option>
-                <option value="ble" selected>Bluetooth</option>
-              </select>
-              <img class="transport-icon ble-icon"
-                src="data:image/png;base64,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"
-                alt="Bluetooth" style="display:none;">
-            </div>
-            <div class="muted" id="deviceName" style="margin-top:6px; font-size:12px; flex: 0 0 auto;">—</div>
+        <!-- Connexion : transport, bouton, état de l'appareil -->
+        <div class="connect-row">
+          <div class="transport-selector">
+            <img class="transport-icon usb-icon"
+              src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAACx0lEQVR4nO2X22vTUBzHo8LAv0HwL/ECgi/LSc/pkjzIRLwwmCs5c0Pdkpe+CLbKhiIOrFMfVNDVnbOCDyqu0r6sCpKxG7r2zctkMtjwgg/KkXZbbbJ26WnWZI584feUC5/P79wSQQgSpPkx3xWYm/IAcfMEAn7HDAR8jrlTBBRsWMoOWuu63/xCIOB3zJ2yBsxAwKeYgYDPMf9HATUabZE1I65o+mf79shbMjY+KViPFd/pmYCC9Zhb8I2lx7wT0Nx3vspILHgngLe6+6sVCNSbQADvRIGefiaOhU4ACkdFgvIiQT8AQSuAwjmRoHsSQVAdUfdsS4Hw5S4mPVIYoGjTEgmakUbDR7ePQLfO4NBJR3BQKUHhH5EgfVsI8MIDS8Hzvgqg+FkX8Kg4Er9FCg/6I9DTz8Bj5zkPKgqlZHZpImqXeCMwYZfnAuhKJxc8TMksNf+AFZZybHjqBpNo+N91gg57LhC6287V+dT8wxL8el3I9FbuTIPcAjLWv7kRkJJtG0C1dIRFxrsc4W+aA9ZnCcryj4BmTLua/3b48QibXcyyua9Z1p3G5Wkzlr9vgb81ea3ablTgF8D61YYFzum2+d3Gch+flSFnFjOs+5W2ofND5mCtwy3PLaD2GPtkzfjZqARIyhaIjhcdbPJLugybX5qoC35tCmW4BVZHof/UVi7iM89Ps7cLLy3ghaUcS0xedzoPBoRGI2OjU8HGL+5tNF59G7VLJBzgi9U6FjokuImK+/aX1oRmTMua8d0JXsbGstJ7MQuehFc2k0jUAQ8ofN3QQeaUWvCV9wCCOmuBHXvaXtenBCDowJbD1ytQjEjQbZ4TGVgXb29T4HkE1BG1RSRomPtzmsK+psHzCKxn7U/sQx1dn5JGw0eaCt+IQDHqiLq3laDjgKAkoPB96ZeSwmWRoFlA4R1AoRSNRnc3HT5IEKGcv9WwF3+CjnqdAAAAAElFTkSuQmCC"
+              alt="usb-connected">
+            <select id="transport" class="transport-select" autocomplete="off">
+              <option value="ble" selected>Bluetooth</option>
+              <option value="serial">USB-C</option>
+            </select>
+            <img class="transport-icon ble-icon"
+              src="data:image/png;base64,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"
+              alt="Bluetooth" style="display:none;">
+          </div>
+          <button id="connect" class="btn btn-primary connect-btn">
+            <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M12 2v10" />
+              <path d="M18.4 6.6a9 9 0 1 1-12.77.04" />
+            </svg>
+            Connecter
+          </button>
+          <button id="disconnect" class="btn btn-danger-outline connect-btn hidden" disabled>
+            <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M12 2v10" />
+              <path d="M18.4 6.6a9 9 0 1 1-12.77.04" />
+            </svg>
+            Déconnecter
+          </button>
+          <div id="deviceStatus" class="device-status" aria-live="polite">
+            <span id="deviceName">Non connecté</span>
           </div>
         </div>
       </div>
@@ -69,12 +78,16 @@
                 <select id="configSelect">
                   <option value="">— Choisir une configuration —</option>
                 </select>
-                <button id="refreshList" class="refresh-btn" title="Rafraîchir la liste">↻</button>
               </div>
             </div>
             <div style="flex: 0 0 auto; display: flex; align-items: flex-end;">
               <div class="settings-menu">
-                <button class="settings-btn" id="settingsToggle" title="Paramètres avancés">⚙️</button>
+                <button class="settings-btn" id="settingsToggle" title="Paramètres avancés" aria-label="Paramètres avancés">
+                  <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
               </div>
             </div>
           </div>
@@ -91,7 +104,14 @@
 
       <!-- Téléverser (déplacé juste après la description) -->
       <div class="control-group" style="margin-top: 8px;">
-        <button id="upload" class="btn btn-success" disabled style="width:100%;">📤 Téléverser</button>
+        <button id="upload" class="btn btn-success" disabled style="width:100%;">
+          <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <path d="M17 8l-5-5-5 5" />
+            <path d="M12 3v12" />
+          </svg>
+          Téléverser
+        </button>
       </div>
 
       <!-- Barre de progression -->
@@ -155,18 +175,39 @@
         </div>
 
         <div class="control-group">
-          <label>Charger un fichier personnel</label>
-          <input id="configFile" type="file" accept=".txt,.cfg,.conf,.ini,.log,.nmea,.csv,.*" />
+          <label for="configFile">Charger un fichier personnel</label>
+          <!-- Native file input hidden: the label below is the visible picker -->
+          <input id="configFile" class="visually-hidden" type="file" accept=".txt,.cfg,.conf,.ini,.log,.nmea,.csv,.*" />
+          <label for="configFile" class="file-picker">
+            <svg class="file-picker-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+              <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+              <path d="M12 12v6" />
+              <path d="m15 15-3-3-3 3" />
+            </svg>
+            <span id="configFileName">Choisir un fichier (.cfg, .txt…)</span>
+          </label>
         </div>
 
         <div class="control-group">
-          <button id="save" class="btn btn-primary" style="width:100%;margin-top:8px">💾 SAVECONFIG</button>
+          <button id="save" class="btn btn-primary" style="width:100%;margin-top:8px">
+            <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" />
+              <path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7" />
+              <path d="M7 3v4a1 1 0 0 0 1 1h7" />
+            </svg>
+            SAVECONFIG
+          </button>
         </div>
       </div>
     </div>
 
     <footer>
-      <span>🄯 2025 by Centipede-RTK &amp; NATUITION</span>
+      <span class="footer-credit">© 2026 by
+        <img src="static/logo.png" alt="Centipede-RTK" class="logo" />
+        <span class="footer-amp">&amp;</span>
+        <img src="static/natuition-logo.png" alt="NATUITION" class="logo" />
+      </span>
       <a href="https://github.com/natuition/WebSerial-CRTK" target="_blank" rel="noopener">
         <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
           <path fill="currentColor"
@@ -178,20 +219,6 @@
 
     <script src="static/js/script.js"></script>
     <script src="static/js/index-script.js"></script>
-    <script>
-      // Sélection dynamique du transport par défaut selon la largeur d'écran.
-      // Exécuté immédiatement (pas au DOMContentLoaded) : la liste des configurations en dépend.
-      (function () {
-        var transportSelect = document.getElementById('transport');
-        if (transportSelect) {
-          if (window.innerWidth <= 600) {
-            transportSelect.value = 'ble';
-          } else {
-            transportSelect.value = 'serial';
-          }
-        }
-      })();
-    </script>
 </body>
 
 </html>

@@ -34,14 +34,22 @@ function isNmeaLine(message) {
     return typeof message === 'string' && /^\$[A-Z]{5},/.test(message);
 }
 
+/**
+ * Show the connected device in the status pill (null = not connected)
+ */
+function setDeviceStatus(label) {
+    const statusEl = $('#deviceStatus');
+    const nameEl = $('#deviceName');
+    if (nameEl) nameEl.textContent = label || 'Non connecté';
+    if (statusEl) statusEl.classList.toggle('connected', !!label);
+}
+
 function updateTransportUi() {
     const transport = $('#transport')?.value || 'serial';
     const baudEl = $('#baud');
     if (baudEl) {
         baudEl.disabled = (transport === 'ble');
     }
-    const nameEl = $('#deviceName');
-    if (nameEl && transport === 'serial') nameEl.textContent = '—';
 
     // Update transport icons
     const usbIcon = document.querySelector('.transport-icon.usb-icon');
@@ -298,10 +306,10 @@ function showWelcomeMessage() {
     const content = document.createElement('div');
     content.innerHTML = `
         <h2 style="margin-top: 0; margin-bottom: 15px; color: #fff;">
-            Bienvenue dans Centipede-RTK Web Serial
+            Bienvenue dans le Configurateur NavX (Web Serial)
         </h2>
         <p style="margin-bottom: 12px; line-height: 1.6;">
-            <strong>Centipede-RTK Web Serial</strong> est un outil de configuration pour les récepteurs GNSS/RTK. 
+            <strong>Configurateur NavX</strong> est un outil de configuration pour les récepteurs GNSS/RTK. 
             Il vous permet de configurer facilement vos équipements via une interface web moderne dont NavX.
         </p>
         <p style="margin-bottom: 12px; line-height: 1.6;">
@@ -534,9 +542,6 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Refresh list
-$('#refreshList').onclick = () => populateConfigSelect(true);
-
 // Configuration select
 $('#configSelect').onchange = async (ev) => {
     const url = ev.target.value;
@@ -547,6 +552,9 @@ $('#configSelect').onchange = async (ev) => {
         await renderConfigSummaryTable();
         return;
     }
+    // A configuration from the list replaces the personal file
+    $('#configFile').value = '';
+    setConfigFileName(null);
     try {
         updateStatus('Loading configuration...', 'info');
         const result = await loadConfigFromUrl(url);
@@ -567,9 +575,19 @@ $('#configSelect').onchange = async (ev) => {
     }
 };
 
+/**
+ * Show the chosen personal file name in the custom file picker (null = none)
+ */
+function setConfigFileName(name) {
+    const nameEl = $('#configFileName');
+    if (nameEl) nameEl.textContent = name || 'Choisir un fichier (.cfg, .txt…)';
+    nameEl?.closest('.file-picker')?.classList.toggle('has-file', !!name);
+}
+
 // Personal file
 $('#configFile').onchange = async (ev) => {
     const f = ev.target.files?.[0];
+    setConfigFileName(f?.name);
     if (!f) {
         currentConfig = '';
         $('#upload').disabled = true;
@@ -593,6 +611,7 @@ $('#configFile').onchange = async (ev) => {
         updateStatus(e.message, 'error');
         currentConfig = '';
         $('#upload').disabled = true;
+        setConfigFileName(null);
         displayConfigDescription(null);
         await renderConfigSummaryTable();
     }
@@ -632,12 +651,10 @@ $('#connect').onclick = async () => {
         $('#disconnect').disabled = false;
         $('#upload').disabled = !currentConfig;
         if (result?.transport === 'ble') {
-            const nameEl = $('#deviceName');
-            if (nameEl) nameEl.textContent = result.deviceName || 'BLE device';
+            setDeviceStatus(result.deviceName || 'Appareil Bluetooth');
             updateStatus(`Connected BLE (${result.deviceName || 'device'})`, 'success');
         } else {
-            const nameEl = $('#deviceName');
-            if (nameEl) nameEl.textContent = '—';
+            setDeviceStatus(`USB · ${result.baudRate} baud`);
             updateStatus(`Connected @ ${result.baudRate} baud`, 'success');
         }
     } catch (e) {
@@ -655,8 +672,7 @@ $('#disconnect').onclick = async () => {
         $('#disconnect').disabled = true;
         $('#upload').disabled = true;
         showProgress(false);
-        const nameEl = $('#deviceName');
-        if (nameEl) nameEl.textContent = '—';
+        setDeviceStatus(null);
         updateStatus('Disconnected', 'info');
     } catch (e) {
         updateStatus('Disconnection error: ' + (e?.message || e), 'error');

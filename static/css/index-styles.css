@@ -1,44 +1,14 @@
-/* Responsive : bouton connecter et sélecteur sur une ligne en mobile */
-@media (max-width: 600px) {
-  .mobile-connect-row {
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    gap: 8px;
-    align-items: stretch !important;
-  }
-  .mobile-connect-row > button {
-    min-width: 0;
-    flex: 1 1 0;
-    width: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .mobile-connect-row > div {
-    min-width: 0;
-    flex: 1 1 0;
-    height: 48px !important;
-    max-width: 140px;
-    display: flex;
-    align-items: stretch;
-  }
-  .mobile-connect-row .transport-selector {
-    min-width: 0;
-    flex: 1 1 0;
-    align-items: center;
-    display: flex;
-  }
-  .mobile-connect-row > button.hidden {
-    display: none !important;
-  }
-}
 /* ========================================
   Centipede-RTK Web Serial - Styles for index.html (beginner mode)
   ======================================== */
 
+/* On the root (not body) with a solid color: overscroll areas show the root background color, not the gradient */
+html {
+  background: #eef5f0 linear-gradient(135deg, #f4f8f5 0%, #eaf3ec 100%) fixed;
+}
+
 body {
   max-width: 800px;
-  background: linear-gradient(135deg, #f4f8f5 0%, #eaf3ec 100%);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -235,10 +205,132 @@ h1 {
   justify-content: center;
 }
 
+.settings-icon {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: var(--dark);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.3s, stroke 0.3s;
+}
+
+.settings-btn:hover .settings-icon {
+  stroke: var(--primary);
+  transform: rotate(45deg);
+}
+
 .settings-btn:hover {
   background: #f4f8f5;
   border-color: var(--primary);
   box-shadow: 0 4px 12px rgba(12, 144, 66, 0.1);
+}
+
+/* Connection row: transport selector, connect button, device status (50px like the config row) */
+.connect-row {
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 2vw, 12px);
+}
+
+/* Just wide enough for the icon, "Bluetooth" and the arrow */
+.connect-row .transport-selector {
+  flex: 0 0 auto;
+  width: 180px;
+}
+
+/* Fixed height: no vertical padding, it would clip the label */
+.connect-row .transport-select {
+  height: 50px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Same fixed width for Connecter / Déconnecter: the row doesn't move on (dis)connection */
+.connect-btn {
+  flex: 0 0 auto;
+  width: 200px;
+  height: 50px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.connect-btn.hidden {
+  display: none;
+}
+
+.btn-icon {
+  width: 1.1em;
+  height: 1.1em;
+  margin-right: 0.4em;
+  vertical-align: -0.2em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.device-status {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 50px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  border: 2px solid #e8ecf1;
+  border-radius: 10px;
+  background: #fafbfc;
+  color: #666;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.device-status::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #c4cbd4;
+}
+
+.device-status span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.device-status.connected {
+  color: var(--primary);
+  border-color: #cde8d3;
+  background: #eef7f0;
+}
+
+.device-status.connected::before {
+  background: var(--primary);
+}
+
+/* Phone: transport + button on the first line, status below */
+@media (max-width: 600px) {
+  .connect-row {
+    flex-wrap: wrap;
+  }
+
+  .connect-btn {
+    flex: 1 1 auto;
+  }
+
+  .device-status {
+    flex-basis: 100%;
+  }
 }
 
 /* Transport selector styling */
@@ -295,6 +387,8 @@ h1 {
 
 .config-summary-table {
   width: 100%;
+  /* Fixed layout: column widths don't depend on the labels (USB and BLE lists differ) */
+  table-layout: fixed;
   border-collapse: collapse;
   font-size: clamp(0.85rem, 1.8vw, 0.95rem);
 }
@@ -312,6 +406,14 @@ h1 {
   font-weight: 700;
   color: var(--dark);
   letter-spacing: 0.3px;
+}
+
+.config-summary-table th:first-child {
+  width: 32%;
+}
+
+.config-summary-table td {
+  overflow-wrap: anywhere;
 }
 
 .config-summary-table tr:last-child td {
@@ -347,6 +449,8 @@ h1 {
   align-items: center;
   backdrop-filter: blur(3px);
   padding: 16px;
+  /* Padding inside the 100vw/100vh, otherwise the overlay overflows the screen */
+  box-sizing: border-box;
 }
 
 .settings-modal.active {
@@ -418,6 +522,66 @@ h1 {
   box-shadow: 0 4px 12px rgba(220, 53, 69, 0.15);
 }
 
+/* Utility: hidden but still focusable / readable by screen readers.
+   !important so element rules (e.g. .settings-content input[type="file"]) can't make it overflow */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  border: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  white-space: nowrap !important;
+}
+
+/* Custom file picker (label for the hidden #configFile) */
+.control-group label.file-picker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 14px;
+  border: 2px dashed #cde8d3;
+  border-radius: 10px;
+  background: #f4f8f5;
+  color: var(--primary);
+  font-weight: 600;
+  letter-spacing: 0;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.control-group label.file-picker:hover,
+#configFile:focus-visible + label.file-picker {
+  border-color: var(--primary);
+  background: #eef7f0;
+}
+
+.file-picker.has-file {
+  border-style: solid;
+  color: var(--dark);
+}
+
+.file-picker span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-picker-icon {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .settings-content select,
 .settings-content input[type="number"],
 .settings-content input[type="file"] {
@@ -443,24 +607,6 @@ h1 {
   display: flex;
   align-items: center;
   gap: clamp(10px, 2vw, 14px);
-}
-
-.refresh-btn {
-  padding: 10px;
-  background: white;
-  border: 2px solid #e8ecf1;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.3s;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.refresh-btn:hover {
-  background: #f4f8f5;
-  border-color: var(--primary);
-  box-shadow: 0 2px 8px rgba(12, 144, 66, 0.1);
 }
 
 .status {
@@ -524,8 +670,14 @@ h1 {
   margin-bottom: 0;
 }
 
-#configSelect, #settingsToggle, #refreshList{
+#configSelect, #settingsToggle {
   height: 50px;
+}
+
+/* Fixed height: vertical padding would clip descenders (g, p) of the selected label */
+#configSelect {
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 /* Mobile responsive optimizations */

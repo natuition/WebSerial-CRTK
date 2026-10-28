@@ -1,4 +1,4 @@
-const CACHE = 'webserial-crtk-v5';
+const CACHE = 'webserial-crtk-v7';
 const NETWORK_TIMEOUT_MS = 3000;
 const PRECACHE_URLS = [
     '/',
@@ -13,8 +13,10 @@ const PRECACHE_URLS = [
     '/static/js/index-advanced-script.js',
     '/static/logo.png',
     '/static/natuition-logo.png',
+    '/static/navx-logo.png',
     '/static/icons/logo-192.png',
     '/static/icons/logo-512.png',
+    '/static/icons/navx-favicon.png',
     '/conf_files/advanced/manifest.json',
     '/conf_files/advanced/NavX_bluetooth.cfg',
     '/conf_files/advanced/NavX_GNSS_Mixed.cfg',

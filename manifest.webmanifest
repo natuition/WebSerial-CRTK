@@ -1,6 +1,6 @@
 {
-    "name": "WebSerial-CRTK",
-    "short_name": "CRTK",
+    "name": "Configurateur NavX",
+    "short_name": "NavX",
     "start_url": "/index.html",
     "scope": "/",
     "display": "standalone",
