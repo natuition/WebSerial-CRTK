@@ -1,0 +1,562 @@
+/* ========================================
+   Centipede-RTK Web Serial - Common JavaScript
+   ======================================== */
+
+/* Common global variables */
+let port, reader, writer;
+let textDecoder, textEncoder;
+let readableStreamClosed, writableStreamClosed;
+let sendingBatch = false;
+let currentTransport = 'serial';
+
+// BLE (Nordic UART Service)
+const NUS_SERVICE_UUID = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+const NUS_RX_UUID = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
+const NUS_TX_UUID = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
+let bleDevice, bleServer, bleService, bleRxChar, bleTxChar;
+let bleReceiveStream, bleReceiveController;
+
+/* Common UI helpers */
+const $ = s => document.querySelector(s);
+
+/**
+ * Checks for Web Serial support
+ */
+function ensureWebSerial() {
+    if (!('serial' in navigator)) {
+        throw new Error('Web Serial n\'est pas pris en charge par ce navigateur. Utilisez Chrome/Chromium sur ordinateur.');
+    }
+}
+
+/**
+ * Checks for Web Bluetooth support
+ */
+function ensureWebBluetooth() {
+    if (!('bluetooth' in navigator)) {
+        throw new Error('Web Bluetooth n\'est pas pris en charge par ce navigateur. Utilisez Chrome/Chromium.');
+    }
+}
+
+/**
+ * Sleep function for delays
+ */
+function sleep(ms) {
+    return new Promise(r => setTimeout(r, ms));
+}
+
+/**
+ * Normalizes text (removes BOM, unifies line endings)
+ */
+function normalizeText(t) {
+    return t.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim() + '\n';
+}
+
+/**
+ * Gets the selected end of line character
+ */
+function getEOL() {
+    return eval('`' + $('#eol').value + '`');
+}
+
+/**
+ * Common Web Serial connection function
+ */
+async function connectSerial() {
+    try {
+        ensureWebSerial();
+        const baudRate = parseInt($('#baud').value, 10) || 115200;
+
+        // USB filters: FTDI(0x0403), CP210x(0x10C4), CH340(0x1A86)
+        const filters = [{ usbVendorId: 0x0403 }, { usbVendorId: 0x10C4 }, { usbVendorId: 0x1A86 }];
+        port = await navigator.serial.requestPort({ filters });
+        await port.open({ baudRate });
+
+        // Encoder/decoder streams and "pipes" with tracking for proper closure
+        textDecoder = new TextDecoderStream();
+        readableStreamClosed = port.readable.pipeTo(textDecoder.writable);
+        reader = textDecoder.readable.getReader();
+
+        textEncoder = new TextEncoderStream();
+        writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
+        writer = textEncoder.writable.getWriter();
+
+        currentTransport = 'serial';
+        return { baudRate, success: true };
+    } catch (e) {
+        throw e;
+    }
+}
+
+/**
+ * BLE notification handler -> stream
+ */
+function handleBleNotification(event) {
+    try {
+        const value = event?.target?.value;
+        if (!value) return;
+        const chunk = new TextDecoder().decode(value.buffer);
+        if (bleReceiveController) bleReceiveController.enqueue(chunk);
+    } catch (e) {
+        console.warn('BLE notify error', e);
+    }
+}
+
+/**
+ * Writes raw bytes to the BLE NUS RX characteristic (text commands, RTCM corrections)
+ */
+async function writeBleBytes(payload) {
+    if (!bleRxChar) throw new Error('Caractéristique Bluetooth RX indisponible');
+    const chunkSize = 20;
+    for (let i = 0; i < payload.length; i += chunkSize) {
+        const chunk = payload.slice(i, i + chunkSize);
+        if (bleRxChar.writeValueWithoutResponse) {
+            await bleRxChar.writeValueWithoutResponse(chunk);
+        } else {
+            await bleRxChar.writeValue(chunk);
+        }
+    }
+}
+
+/**
+ * Common Web Bluetooth connection function (NUS)
+ */
+async function connectBle() {
+    try {
+        ensureWebBluetooth();
+
+        const device = await navigator.bluetooth.requestDevice({
+            filters: [{ services: [NUS_SERVICE_UUID] }],
+            optionalServices: [NUS_SERVICE_UUID]
+        });
+        bleDevice = device;
+
+        bleServer = await device.gatt.connect();
+        bleService = await bleServer.getPrimaryService(NUS_SERVICE_UUID);
+        bleRxChar = await bleService.getCharacteristic(NUS_RX_UUID);
+        bleTxChar = await bleService.getCharacteristic(NUS_TX_UUID);
+
+        bleReceiveStream = new ReadableStream({
+            start(controller) {
+                bleReceiveController = controller;
+            },
+            cancel() {
+                bleReceiveController = null;
+            }
+        });
+
+        reader = bleReceiveStream.getReader();
+        writer = {
+            write: (data) => writeBleBytes(new TextEncoder().encode(String(data)))
+        };
+
+        await bleTxChar.startNotifications();
+        bleTxChar.addEventListener('characteristicvaluechanged', handleBleNotification);
+
+        currentTransport = 'ble';
+        return { success: true, transport: 'ble', deviceName: device?.name || 'BLE device' };
+    } catch (e) {
+        throw e;
+    }
+}
+
+/**
+ * Common Web Serial disconnection function
+ */
+async function disconnectSerial() {
+    try {
+        if (!port) return;
+        if (sendingBatch) {
+            console.log('Sending in progress — waiting before disconnection…');
+        }
+
+        // 1) Stop reading properly
+        try { await reader?.cancel(); } catch { }
+        try { await readableStreamClosed?.catch(() => { }); } catch { }
+        reader?.releaseLock?.();
+
+        // 2) Close writing properly
+        try { await writer?.close(); } catch { }
+        try { await writableStreamClosed?.catch(() => { }); } catch { }
+        writer?.releaseLock?.();
+
+        // 3) Close the port
+        await port.close();
+
+        // 4) State cleanup
+        port = undefined; reader = undefined; writer = undefined;
+        textDecoder = textEncoder = undefined;
+        readableStreamClosed = writableStreamClosed = undefined;
+
+        return { success: true };
+    } catch (e) {
+        throw e;
+    }
+}
+
+/**
+ * Common Web Bluetooth disconnection function
+ */
+async function disconnectBle() {
+    try {
+        try { bleTxChar?.removeEventListener('characteristicvaluechanged', handleBleNotification); } catch { }
+        try { await bleTxChar?.stopNotifications(); } catch { }
+        try { if (bleDevice?.gatt?.connected) bleDevice.gatt.disconnect(); } catch { }
+
+        try { await reader?.cancel(); } catch { }
+        reader?.releaseLock?.();
+        try { bleReceiveController?.close?.(); } catch { }
+
+        writer = undefined;
+        reader = undefined;
+        bleReceiveController = undefined;
+        bleReceiveStream = undefined;
+        bleRxChar = bleTxChar = bleService = bleServer = bleDevice = undefined;
+
+        return { success: true };
+    } catch (e) {
+        throw e;
+    }
+}
+
+/**
+ * Returns selected transport (serial|ble)
+ */
+function getSelectedTransport() {
+    const el = $('#transport');
+    const v = el?.value || 'serial';
+    return (v === 'ble') ? 'ble' : 'serial';
+}
+
+/**
+ * Common connect based on UI transport
+ */
+async function connectTransport() {
+    const transport = getSelectedTransport();
+    if (transport === 'ble') return await connectBle();
+    return await connectSerial();
+}
+
+/**
+ * Show the connected device in the status pill (null = not connected)
+ */
+function setDeviceStatus(label) {
+    const statusEl = $('#deviceStatus');
+    const nameEl = $('#deviceName');
+    if (nameEl) nameEl.textContent = label || 'Non connecté';
+    if (statusEl) statusEl.classList.toggle('connected', !!label);
+}
+
+/**
+ * USB / Bluetooth icon in the transport selector
+ */
+function updateTransportIcons(transport) {
+    const usbIcon = document.querySelector('.transport-icon.usb-icon');
+    const bleIcon = document.querySelector('.transport-icon.ble-icon');
+    if (!usbIcon || !bleIcon) return;
+    usbIcon.style.display = (transport === 'serial') ? 'block' : 'none';
+    bleIcon.style.display = (transport === 'serial') ? 'none' : 'block';
+}
+
+/**
+ * Phone / tablet detection: no USB there, and the advanced page is desktop only
+ */
+function isPhoneDevice() {
+    const uaMobile = /Mobi|Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '');
+    const touch = (navigator.maxTouchPoints || 0) > 0 || 'ontouchstart' in window;
+    const small = window.innerWidth <= 768;
+    return uaMobile || (touch && small);
+}
+
+// If the user is on a phone, disable USB (serial) option in the transport selector
+function disableUsbOnMobile() {
+    try {
+        const isPhone = isPhoneDevice();
+
+        const sel = document.getElementById('transport');
+        if (!sel) return;
+        const opt = sel.querySelector('option[value="serial"]');
+        if (!opt) return;
+
+        if (isPhone) {
+            opt.disabled = true;
+            // annotate the label so users understand why it's disabled
+            if (!/mobile/i.test(opt.text)) opt.text = opt.text + ' (non disponible sur mobile)';
+            if (sel.value === 'serial') {
+                sel.value = 'ble';
+                // notify listeners (e.g. configuration list depends on transport)
+                sel.dispatchEvent(new Event('change'));
+            }
+            if (typeof updateTransportUi === 'function') updateTransportUi();
+        } else {
+            // ensure enabled on non-mobile
+            opt.disabled = false;
+            opt.text = opt.text.replace(/\s*\(non disponible sur mobile\)$/, '');
+        }
+    } catch (e) {
+        console.warn('disableUsbOnMobile error', e);
+    }
+}
+
+window.addEventListener('DOMContentLoaded', disableUsbOnMobile);
+window.addEventListener('resize', disableUsbOnMobile);
+
+/**
+ * Common disconnect based on current transport
+ */
+async function disconnectTransport() {
+    if (currentTransport === 'ble') {
+        currentTransport = 'serial';
+        return await disconnectBle();
+    }
+    return await disconnectSerial();
+}
+
+/* ---------------------- Configuration files listing ---------------------- */
+const ALLOWED_EXT = /\.(txt|cfg|conf|ini|nmea|csv|log)$/i;
+// Same configurations on both pages: the folder depends on the transport only
+function getConfigBase() {
+    return ($('#transport')?.value === 'ble') ? 'conf_files/ble' : 'conf_files/usb';
+}
+
+/**
+ * Populates the configuration dropdown list
+ */
+async function populateConfigSelect(manual) {
+    const sel = $('#configSelect');
+    const base = getConfigBase();
+
+    sel.innerHTML = '<option value="">Choisir une configuration</option>';
+
+    // Prefer manifest (works offline via service worker cache), with its labels (emoji) and groups
+    {
+        const manifestOptions = await tryFetchManifestJSON();
+        if (manifestOptions && manifestOptions.length) {
+            addOptions(sel, manifestOptions, /*useCleanNames=*/false);
+            if (typeof updateStatus === 'function') updateStatus(`${manifestOptions.length} configuration(s) via manifest`, 'success');
+            else if (typeof logLine === 'function') logLine(`✓ ${manifestOptions.length} configuration(s) via manifest.`);
+            return [manifestOptions, "manifest"];
+        }
+    }
+
+    // Local index
+    const localFiles = await tryFetchLocalIndex();
+    if (localFiles && localFiles.length) {
+        const options = localFiles.map(n => ({ name: n, url: `${base}/${n}` }));
+        addOptions(sel, options, /*useCleanNames=*/true);
+        if (typeof updateStatus === 'function') updateStatus(`${options.length} fichier(s) via index local`, 'success');
+        else if (typeof logLine === 'function') logLine(`✓ ${options.length} fichier(s) via local.`);
+        return [options, "local"];
+    }
+
+    if (typeof updateStatus === 'function') {
+        updateStatus(`ℹ️ Impossible de lister ${base}/. Utilisez un fichier personnel ou ajoutez un manifest.json.`, 'info');
+    } else if (typeof logLine === 'function') {
+        logLine(manual ? 'ℹ️ Aucun fichier détecté.' :
+            `ℹ️ Impossible de lister ${base}/. Utilisez le bouton "fichier personnel" ou ajoutez un manifest.json.`);
+    }
+}
+
+/**
+ * Adds options to the select element
+ */
+function addOptions(selectEl, items, useCleanNames = true) {
+    // Items with a manifest "group" go under a non-selectable <optgroup> title (groups keep manifest order)
+    const groups = new Map();
+    items
+        // FIX: accepter les items manifest (label en name) en vérifiant aussi l'URL
+        .filter(it => ALLOWED_EXT.test(it.name || '') || ALLOWED_EXT.test(it.url || ''))
+        .sort((a, b) => (a.name || '').localeCompare((b.name || ''), undefined, { sensitivity: 'base' }))
+        .forEach(it => {
+            let parent = selectEl;
+            if (it.group) {
+                if (!groups.has(it.group)) {
+                    const og = document.createElement('optgroup');
+                    og.label = it.group;
+                    groups.set(it.group, og);
+                }
+                parent = groups.get(it.group);
+            }
+
+            const opt = document.createElement('option');
+            opt.value = it.url;
+
+            if (useCleanNames) {
+                const nm = (it.name || '');
+                const cleanName = nm.replace(/\.[^/.]+$/, '').replace(/_/g, ' ');
+                opt.textContent = cleanName || nm;
+            } else {
+                // Mode débutant : conserver le label du manifest (emoji inclus)
+                opt.textContent = it.name || it.url;
+            }
+
+            parent.appendChild(opt);
+        });
+    // Append groups in manifest order (first appearance), not in sorted label order
+    [...new Set(items.map(it => it.group).filter(Boolean))]
+        .forEach(g => groups.has(g) && selectEl.appendChild(groups.get(g)));
+}
+
+/**
+ * Attempts to fetch the JSON manifest
+ */
+async function tryFetchManifestJSON() {
+    const base = getConfigBase();
+    try {
+        const resp = await fetch(`${base}/manifest.json?t=` + Date.now(), { cache: 'no-store' });
+        if (!resp.ok) return null;
+        const data = await resp.json();
+
+        // Support: { items: [{file, label}, ...] }  OR legacy: ["file.cfg", ...]
+        if (Array.isArray(data)) {
+            return data
+                .filter(n => typeof n === 'string')
+                .map(n => ({ name: n, url: `${base}/${n}` }));
+        }
+        if (data && Array.isArray(data.items)) {
+            return data.items
+                .filter(it => it && typeof it.file === 'string')
+                .map(it => ({
+                    name: (typeof it.label === 'string' && it.label.trim()) ? it.label : it.file,
+                    url: `${base}/${it.file}`,
+                    group: (typeof it.group === 'string' && it.group.trim()) ? it.group : null
+                }));
+        }
+        return null;
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Attempts to fetch the local index
+ */
+async function tryFetchLocalIndex() {
+    const base = getConfigBase();
+    try {
+        const resp = await fetch(`${base}/?t=` + Date.now(), { cache: 'no-store' });
+        if (!resp.ok) return null;
+        const html = await resp.text();
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        return Array.from(doc.querySelectorAll('a[href]'))
+            .map(a => a.getAttribute('href') || '')
+            .filter(href => href && !href.startsWith('?') && !href.startsWith('/'))
+            .filter(href => !href.endsWith('/'))
+            .filter(href => ALLOWED_EXT.test(href));
+    } catch { return null; }
+}
+
+/**
+ * Loads a configuration file from a URL
+ */
+async function loadConfigFromUrl(url) {
+    try {
+        const resp = await fetch(url, { cache: 'no-store' });
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const txt = await resp.text();
+        return { content: normalizeText(txt), success: true };
+    } catch (e) {
+        throw new Error('Impossible de charger ' + url + ' : ' + (e?.message || e));
+    }
+}
+
+/**
+ * Loads a configuration file from a local file
+ */
+async function loadConfigFromFile(file) {
+    try {
+        const txt = await file.text();
+        return { content: normalizeText(txt), success: true, filename: file.name };
+    } catch (e) {
+        throw new Error('Erreur de lecture du fichier : ' + (e?.message || e));
+    }
+}
+
+/**
+ * Sends the SAVECONFIG command
+ */
+async function sendSaveConfig() {
+    if (!writer) {
+        throw new Error('Non connecté.');
+    }
+    try {
+        const command = 'SAVECONFIG' + getEOL();
+        await writer.write(command);
+        return { success: true, command: command };
+    } catch (e) {
+        throw new Error('Erreur SAVECONFIG : ' + (e?.message || e));
+    }
+}
+
+/**
+ * HTML escaping function
+ */
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+/**
+ * Converts URLs to clickable links
+ */
+function convertUrlsToLinks(text) {
+    const urlRegex = /(https?:\/\/[^\s<>"]+)/gi;
+
+    return text.replace(urlRegex, function (url) {
+        let cleanUrl = url;
+        const punctuation = /[.,!?;:]$/;
+        let endPunct = '';
+
+        if (punctuation.test(url)) {
+            endPunct = url.slice(-1);
+            cleanUrl = url.slice(0, -1);
+        }
+
+        return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" style="color: var(--primary); text-decoration: underline;">${cleanUrl}</a>${endPunct}`;
+    });
+}
+
+/**
+ * Extracts description from file comments
+ */
+function extractConfigDescription(content) {
+    if (!content) return null;
+
+    const lines = content.split('\n');
+    const description = {
+        title: '',
+        details: []
+    };
+
+    // Search for #title: and #content: tags in comments
+    for (let i = 0; i < Math.min(30, lines.length); i++) {
+        const line = lines[i].trim();
+
+        // Ignore empty lines
+        if (!line) continue;
+
+        // If it's a comment (# or //)
+        if (line.startsWith('#') || line.startsWith('//')) {
+            const comment = line.replace(/^(#|\/\/)\s*/, '');
+
+            // Search for title: tag
+            if (comment.toLowerCase().startsWith('title:')) {
+                description.title = comment.substring(6).trim();
+            }
+            // Search for content: tag
+            else if (comment.toLowerCase().startsWith('content:')) {
+                const content = comment.substring(8).trim();
+                if (content.length > 0) {
+                    description.details.push(content);
+                }
+            }
+        } else {
+            // If we encounter a non-comment line and already have data, stop
+            if (description.title || description.details.length > 0) {
+                break;
+            }
+        }
+    }
+
+    return (description.title || description.details.length) ? description : null;
+}

@@ -1,0 +1,547 @@
+/* ========================================
+  Centipede-RTK Web Serial - Styles for index.html (beginner mode)
+  ======================================== */
+
+body {
+  max-width: 800px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1 {
+  font-size: clamp(1.4rem, 5vw, 2rem);
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+}
+
+.main-container {
+  background: white;
+  border-radius: 16px;
+  padding: clamp(16px, 5vw, 28px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+}
+
+.control-group {
+  margin-bottom: 24px;
+}
+
+.control-group label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--dark);
+  font-size: clamp(0.9rem, 2.5vw, 1rem);
+  letter-spacing: 0.3px;
+}
+
+.control-row {
+  display: flex;
+  gap: clamp(12px, 3vw, 16px);
+  align-items: flex-end;
+  flex-wrap: wrap;
+  align-content: flex-start;
+}
+
+.progress-container {
+  margin-top: 28px;
+  position: relative;
+  background: #fafbfc;
+  border-radius: 12px;
+  padding: 18px;
+  border: 1px solid #e8ecf1;
+}
+
+/* Terminal toggle: pill with icon + label, filled when the terminal is shown */
+/* Same 34px height in both states, and only colors animate: no size "bounce" when toggling */
+.terminal-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  border: 2px solid #e8ecf1;
+  border-radius: 999px;
+  background: white;
+  color: var(--primary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.3s, border-color 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+.terminal-toggle svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.terminal-toggle:hover {
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(12, 144, 66, 0.1);
+}
+
+.terminal-toggle .icon-close {
+  display: none;
+}
+
+/* Open: round red close button */
+.terminal-toggle[aria-expanded="true"] {
+  width: 34px;
+  padding: 0;
+  justify-content: center;
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.terminal-toggle[aria-expanded="true"]:hover {
+  background: #fff3f4;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.15);
+}
+
+.terminal-toggle[aria-expanded="true"] .icon-open,
+.terminal-toggle[aria-expanded="true"] .label-open {
+  display: none;
+}
+
+.terminal-toggle[aria-expanded="true"] .icon-close {
+  display: block;
+}
+
+.settings-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.settings-btn {
+  background: white;
+  border: 2px solid #e8ecf1;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 10px;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-icon {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: var(--dark);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.3s, stroke 0.3s;
+}
+
+.settings-btn:hover .settings-icon {
+  stroke: var(--primary);
+  transform: rotate(45deg);
+}
+
+.settings-btn:hover {
+  background: #f4f8f5;
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(12, 144, 66, 0.1);
+}
+
+.config-summary {
+  margin-top: 14px;
+  border: 1px solid #e8ecf1;
+  border-radius: 10px;
+  background: #fafbfc;
+  padding: 14px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.config-summary-table {
+  width: 100%;
+  /* Fixed layout: column widths don't depend on the labels (USB and BLE lists differ) */
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: clamp(0.85rem, 1.8vw, 0.95rem);
+}
+
+.config-summary-table th,
+.config-summary-table td {
+  text-align: left;
+  padding: 10px 12px;
+  vertical-align: top;
+  border-bottom: 1px solid #e8ecf1;
+}
+
+.config-summary-table th {
+  background: #eaf3ec;
+  font-weight: 700;
+  color: var(--dark);
+  letter-spacing: 0.3px;
+}
+
+.config-summary-table th:first-child {
+  width: 32%;
+}
+
+.config-summary-table td {
+  overflow-wrap: anywhere;
+}
+
+/* Group title row (RTK / Fast static), like the selector's <optgroup> */
+.config-summary-table .config-summary-group th {
+  background: transparent;
+  color: var(--primary);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding-top: 16px;
+  border-bottom: 2px solid #cde8d3;
+}
+
+.config-summary-table tr:last-child td {
+  border-bottom: none;
+}
+
+.config-summary-desc-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--primary);
+}
+
+.config-summary-desc-list {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.config-summary-desc-list li {
+  margin-bottom: 4px;
+  font-size: 0.9em;
+}
+
+/* Custom file picker (label for the hidden #configFile) */
+.control-group label.file-picker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 14px;
+  border: 2px dashed #cde8d3;
+  border-radius: 10px;
+  background: #f4f8f5;
+  color: var(--primary);
+  font-weight: 600;
+  letter-spacing: 0;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.control-group label.file-picker:hover,
+#configFile:focus-visible + label.file-picker {
+  border-color: var(--primary);
+  background: #eef7f0;
+}
+
+.file-picker.has-file {
+  border-style: solid;
+  color: var(--dark);
+}
+
+.file-picker span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-picker-icon {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.settings-content select,
+.settings-content input[type="number"],
+.settings-content input[type="file"] {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+  font-size: clamp(0.9rem, 2.2vw, 1rem);
+  padding: 14px;
+  border-radius: 10px;
+  border: 2px solid #e8ecf1;
+  background: white;
+  margin: 0;
+  transition: all 0.3s;
+}
+
+.settings-content select:focus,
+.settings-content input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(12, 144, 66, 0.1);
+}
+
+.file-group {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 2vw, 14px);
+}
+
+.status {
+  padding: 14px;
+  border-radius: 10px;
+  margin-bottom: 0;
+  margin-top: 20px;
+  font-weight: 600;
+  border-left: 4px solid;
+  font-size: clamp(0.9rem, 2vw, 1rem);
+}
+
+.status.success {
+  background: #f1f9f0;
+  color: #1e7e34;
+  border-left-color: var(--success);
+  border: 1px solid #d4e8d2;
+  border-left: 4px solid var(--success);
+}
+
+.status.error {
+  background: #fff3f1;
+  color: #b42318;
+  border-left-color: var(--danger);
+  border: 1px solid #f5c6cb;
+  border-left: 4px solid var(--danger);
+}
+
+.status.info {
+  background: #eef7f0;
+  color: #0a5c2e;
+  border-left-color: var(--primary);
+  border: 1px solid #cde8d3;
+  border-left: 4px solid var(--primary);
+}
+
+.config-description {
+  background: #f8fafb;
+  border: 1px solid #e8ecf1;
+  border-radius: 10px;
+  padding: 18px;
+  margin: 16px 0;
+  font-size: clamp(0.85rem, 2vw, 0.95rem);
+  line-height: 1.6;
+  color: #495057;
+}
+
+.config-description h4 {
+  margin: 0 0 12px 0;
+  color: var(--primary);
+  font-size: clamp(1rem, 2.2vw, 1.15rem);
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.config-description p {
+  margin: 0 0 10px 0;
+}
+
+.config-description p:last-child {
+  margin-bottom: 0;
+}
+
+#configSelect, #settingsToggle {
+  height: 50px;
+}
+
+/* Fixed height: vertical padding would clip descenders (g, p) of the selected label */
+#configSelect {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Mobile responsive optimizations */
+@media (max-width: 768px) {
+  .main-container {
+    border-radius: 14px;
+    padding: clamp(14px, 4vw, 20px);
+  }
+
+  .control-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .control-row > * {
+    flex: 1 !important;
+  }
+
+  .control-row > div {
+    height: auto !important;
+  }
+
+  .control-row select {
+    width: 100%;
+  }
+
+  .progress-container {
+    padding: 14px;
+  }
+
+  .uart-terminal {
+    max-height: 200px;
+    font-size: 11px;
+  }
+
+  .settings-content {
+    padding: clamp(18px, 4vw, 28px);
+    width: 95%;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 8px;
+  }
+
+  .main-container {
+    border-radius: 12px;
+    padding: 12px;
+  }
+
+  h1 {
+    font-size: clamp(1.2rem, 4vw, 1.6rem);
+  }
+
+  .control-group {
+    margin-bottom: 18px;
+  }
+
+  .control-group label {
+    font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+    margin-bottom: 8px;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 12px 16px;
+  }
+
+  .progress-container {
+    padding: 12px;
+    margin-top: 20px;
+  }
+
+  .uart-terminal {
+    font-size: 10px;
+    padding: 10px;
+  }
+
+  .config-summary {
+    padding: 10px;
+  }
+
+  .config-summary-table {
+    font-size: 0.8rem;
+  }
+
+  .config-summary-table th,
+  .config-summary-table td {
+    padding: 8px;
+  }
+
+  .settings-content {
+    padding: 16px;
+    width: auto!important;
+    max-height: 90vh;
+  }
+
+  .settings-modal{
+    padding: 0px;
+  }
+
+  .modal-title {
+    font-size: clamp(1rem, 3vw, 1.2rem);
+  }
+
+  .status {
+    font-size: 0.9rem;
+    padding: 12px;
+  }
+}
+
+/* Phone: the summary table becomes a list (configuration name above its description) */
+@media (max-width: 600px) {
+  .config-summary-table,
+  .config-summary-table tbody,
+  .config-summary-table tr,
+  .config-summary-table td,
+  .config-summary-table .config-summary-group th {
+    display: block;
+    width: auto;
+  }
+
+  .config-summary-table thead {
+    display: none;
+  }
+
+  .config-summary-table td:first-child {
+    font-weight: 700;
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .config-summary-table td:last-child {
+    padding-top: 4px;
+  }
+}
+
+/* Phones: 16px settings fields too (this file sets a smaller clamp) */
+@media (max-width: 768px) {
+  .settings-content select,
+  .settings-content input[type="number"] {
+    font-size: 16px;
+  }
+}
+
+/* Comfortable touch target for the main action */
+#upload {
+  min-height: 48px;
+}
+
+@media (max-width: 360px) {
+  .brand {
+    gap: 6px;
+  }
+
+  .brand .logo {
+    height: 1.8rem;
+  }
+
+  .btn {
+    font-size: 14px;
+    padding: 10px 14px;
+  }
+
+  button {
+    padding: 10px 12px;
+  }
+
+  .control-row {
+    gap: 8px;
+  }
+}

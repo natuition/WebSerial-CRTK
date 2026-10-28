@@ -3,594 +3,106 @@
 
 <head>
   <meta charset="utf-8" />
-  <title>Centipede Web Serial</title>
+  <title>Configurateur NavX</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" type="image/png" href="static/logo.png" />
-  <style>
-    :root {
-      --primary: #0b57d0;
-      --success: #28a745;
-      --danger: #dc3545;
-      --warning: #ffc107;
-      --light: #f8f9fa;
-      --dark: #343a40;
-    }
-
-    body {
-      font-family: system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 0 16px;
-      background-color: #f5f5f5;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    h1 {
-      font-size: 1.8rem;
-      margin: 24px 0;
-      text-align: center;
-      color: var(--dark)
-    }
-
-    .main-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-    }
-
-    .brand .logo {
-      height: 2.5em;
-      width: auto;
-    }
-
-    .main-container {
-      background: white;
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1)
-    }
-
-    .control-group {
-      margin-bottom: 20px
-    }
-
-    .control-group label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: var(--dark)
-    }
-
-    .control-row {
-      display: flex;
-      gap: 16px;
-      align-items: flex-end;
-      flex-wrap: wrap
-    }
-
-    select,
-    input[type="number"],
-    input[type="file"] {
-      font-size: 16px;
-      padding: 12px;
-      border-radius: 8px;
-      border: 2px solid #ddd;
-      background: #fff;
-      width: 100%;
-      max-width: none;
-    }
-
-    select:focus,
-    input:focus {
-      outline: none;
-      border-color: var(--primary)
-    }
-
-    .btn {
-      font-size: 16px;
-      padding: 12px 24px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.2s;
-    }
-
-    .btn-primary {
-      background: var(--primary);
-      color: white
-    }
-
-    .btn-primary:hover {
-      background: #0943a6
-    }
-
-    .btn-success {
-      background: var(--success);
-      color: white
-    }
-
-    .btn-success:hover {
-      background: #218838
-    }
-
-    .btn[disabled] {
-      opacity: .6;
-      cursor: not-allowed
-    }
-
-    .progress-container {
-      margin-top: 24px;
-      position: relative;
-    }
-
-    .progress-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-
-    .progress-info-btn {
-      background: none;
-      border: 1px solid #ddd;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      cursor: pointer;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--primary);
-      transition: all 0.2s;
-    }
-
-    .progress-info-btn:hover {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-    }
-
-    .uart-terminal {
-      background: #1a1a1a;
-      color: #00ff00;
-      font-family: 'Courier New', monospace;
-      font-size: 12px;
-      padding: 12px;
-      border-radius: 6px;
-      max-height: 200px;
-      overflow-y: auto;
-      margin-top: 12px;
-      border: 1px solid #333;
-      white-space: pre-wrap;
-      word-break: break-all;
-    }
-
-    .uart-terminal::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    .uart-terminal::-webkit-scrollbar-track {
-      background: #2a2a2a;
-    }
-
-    .uart-terminal::-webkit-scrollbar-thumb {
-      background: #555;
-      border-radius: 4px;
-    }
-
-    .uart-terminal .sent {
-      color: #ffff00;
-    }
-
-    .uart-terminal .received {
-      color: #00ff00;
-    }
-
-    .uart-terminal .timestamp {
-      color: #888;
-      font-size: 10px;
-    }
-
-    .progress-bar {
-      width: 100%;
-      height: 20px;
-      background: #e9ecef;
-      border-radius: 10px;
-      overflow: hidden;
-      margin-bottom: 12px
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--primary), #4285f4);
-      transition: width 0.3s ease;
-      border-radius: 10px
-    }
-
-    .progress-text {
-      text-align: center;
-      font-size: 14px;
-      color: var(--dark)
-    }
-
-    .settings-menu {
-      position: relative;
-      display: inline-block
-    }
-
-    .settings-btn {
-      background: none;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-      padding: 8px;
-      border-radius: 50%;
-      transition: background 0.2s
-    }
-
-    .settings-btn:hover {
-      background: #f0f0f0
-    }
-
-    .settings-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-      display: none;
-      justify-content: center;
-      align-items: center;
-      backdrop-filter: blur(2px);
-    }
-
-    .settings-modal.active {
-      display: flex;
-    }
-
-    .settings-content {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-      padding: 32px;
-      max-width: 500px;
-      width: 90%;
-      max-height: 80vh;
-      overflow-y: auto;
-      position: relative;
-      animation: modalSlideIn 0.3s ease-out;
-    }
-
-    @keyframes modalSlideIn {
-      from {
-        opacity: 0;
-        transform: translateY(-50px) scale(0.95);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid #eee;
-    }
-
-    .modal-title {
-      font-size: 20px;
-      font-weight: 600;
-      color: var(--dark);
-      margin: 0;
-    }
-
-    .close-btn {
-      background: none;
-      border: none;
-      font-size: 24px;
-      cursor: pointer;
-      padding: 4px;
-      border-radius: 50%;
-      transition: background 0.2s;
-      color: #666;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .close-btn:hover {
-      background: #f0f0f0;
-      color: var(--danger);
-    }
-
-    .settings-content select,
-    .settings-content input[type="number"],
-    .settings-content input[type="file"] {
-      width: 100%;
-      max-width: none;
-      box-sizing: border-box;
-      font-size: 16px;
-      padding: 12px;
-      border-radius: 8px;
-      border: 2px solid #ddd;
-      background: #fff;
-      margin: 0;
-    }
-
-    .file-group {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 12px
-    }
-
-    .refresh-btn {
-      padding: 8px;
-      background: none;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px
-    }
-
-    .refresh-btn:hover {
-      background: #f0f0f0
-    }
-
-    footer {
-      margin-top: auto;
-      padding: 16px 0;
-      border-top: 1px solid #eee;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      font-size: 14px;
-      color: #666
-    }
-
-    footer a {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      text-decoration: none;
-      color: var(--primary)
-    }
-
-    footer svg {
-      width: 16px;
-      height: 16px
-    }
-
-    .status {
-      padding: 12px;
-      border-radius: 8px;
-      margin-bottom: 0;
-      margin-top: 16px;
-      font-weight: 500
-    }
-
-    .status.success {
-      background: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb
-    }
-
-    .status.error {
-      background: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb
-    }
-
-    .status.info {
-      background: #d1ecf1;
-      color: #0c5460;
-      border: 1px solid #bee5eb
-    }
-
-    .hidden {
-      display: none
-    }
-
-    .config-description {
-      background: #f8f9fa;
-      border: 1px solid #dee2e6;
-      border-radius: 8px;
-      padding: 15px;
-      margin: 15px 0;
-      font-size: 14px;
-      line-height: 1.5;
-      color: #495057;
-    }
-
-    .config-description h4 {
-      margin: 0 0 10px 0;
-      color: #007bff;
-      font-size: 16px;
-    }
-
-    .config-description p {
-      margin: 0 0 8px 0;
-    }
-
-    .config-description p:last-child {
-      margin-bottom: 0;
-    }
-
-    /* Mode Switch Styles */
-    .mode-switch-container {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 999;
-      background: white;
-      border-radius: 25px;
-      padding: 8px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      border: 1px solid #ddd;
-    }
-
-    .mode-switch {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: var(--dark);
-    }
-
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 44px;
-      height: 24px;
-    }
-
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #ccc;
-      transition: .4s;
-      border-radius: 24px;
-    }
-
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 18px;
-      width: 18px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      transition: .4s;
-      border-radius: 50%;
-    }
-
-    input:checked+.slider {
-      background-color: var(--primary);
-    }
-
-    input:checked+.slider:before {
-      transform: translateX(20px);
-    }
-
-    .mode-label {
-      font-weight: 600;
-      white-space: nowrap;
-    }
-
-    .mode-label.active {
-      color: var(--primary);
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-      .mode-switch-container {
-        position: relative;
-        top: auto;
-        right: auto;
-        margin-bottom: 16px;
-        justify-content: center;
-        display: flex;
-      }
-    }
-  </style>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#0c9042">
+  <link rel="icon" type="image/png" href="static/icons/navx-favicon.png" />
+  <link rel="stylesheet" href="static/css/styles.css">
+  <link rel="stylesheet" href="static/css/index-styles.css">
 </head>
 
 <body>
   <!-- Mode Switch -->
-  <div class="mode-switch-container">
+  <div class="mode-switch-container mobile-top-left">
     <div class="mode-switch">
-      <span class="mode-label active" id="beginnerLabel">Débutant</span>
+      <span>Débutant</span>
       <label class="switch">
-        <input type="checkbox" id="modeToggle">
-        <span class="slider"></span>
+        <input type="checkbox" id="modeSwitch">
+        <span class="slider round"></span>
       </label>
-      <span class="mode-label" id="advancedLabel">Avancé</span>
+      <span>Avancé</span>
     </div>
   </div>
 
   <div class="main-content">
     <h1 class="brand">
-      <img src="static/logo.png" alt="Logo" class="logo" />
-      Centipede Web Serial
+      <img src="static/navx-logo.png" alt="NavX" class="logo" />
+      Configurateur NavX
     </h1>
 
     <div class="main-container">
-      <!-- Boutons principaux -->
+      <!-- Boutons principaux + Baud -->
       <div class="control-group">
-        <div class="control-row">
-          <button id="connect" class="btn btn-primary" style="flex: 1;">🔌 Connecter</button>
-          <button id="disconnect" class="btn btn-primary hidden" disabled style="flex: 1;">⏏️ Déconnecter</button>
-          <button id="upload" class="btn btn-success" disabled style="flex: 1;">📤 Téléverser</button>
+        <!-- Connexion : transport, bouton, état de l'appareil -->
+        <div class="connect-row">
+          <div class="transport-selector">
+            <img class="transport-icon usb-icon"
+              src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAACx0lEQVR4nO2X22vTUBzHo8LAv0HwL/ECgi/LSc/pkjzIRLwwmCs5c0Pdkpe+CLbKhiIOrFMfVNDVnbOCDyqu0r6sCpKxG7r2zctkMtjwgg/KkXZbbbJ26WnWZI584feUC5/P79wSQQgSpPkx3xWYm/IAcfMEAn7HDAR8jrlTBBRsWMoOWuu63/xCIOB3zJ2yBsxAwKeYgYDPMf9HATUabZE1I65o+mf79shbMjY+KViPFd/pmYCC9Zhb8I2lx7wT0Nx3vspILHgngLe6+6sVCNSbQADvRIGefiaOhU4ACkdFgvIiQT8AQSuAwjmRoHsSQVAdUfdsS4Hw5S4mPVIYoGjTEgmakUbDR7ePQLfO4NBJR3BQKUHhH5EgfVsI8MIDS8Hzvgqg+FkX8Kg4Er9FCg/6I9DTz8Bj5zkPKgqlZHZpImqXeCMwYZfnAuhKJxc8TMksNf+AFZZybHjqBpNo+N91gg57LhC6287V+dT8wxL8el3I9FbuTIPcAjLWv7kRkJJtG0C1dIRFxrsc4W+aA9ZnCcryj4BmTLua/3b48QibXcyyua9Z1p3G5Wkzlr9vgb81ea3ablTgF8D61YYFzum2+d3Gch+flSFnFjOs+5W2ofND5mCtwy3PLaD2GPtkzfjZqARIyhaIjhcdbPJLugybX5qoC35tCmW4BVZHof/UVi7iM89Ps7cLLy3ghaUcS0xedzoPBoRGI2OjU8HGL+5tNF59G7VLJBzgi9U6FjokuImK+/aX1oRmTMua8d0JXsbGstJ7MQuehFc2k0jUAQ8ofN3QQeaUWvCV9wCCOmuBHXvaXtenBCDowJbD1ytQjEjQbZ4TGVgXb29T4HkE1BG1RSRomPtzmsK+psHzCKxn7U/sQx1dn5JGw0eaCt+IQDHqiLq3laDjgKAkoPB96ZeSwmWRoFlA4R1AoRSNRnc3HT5IEKGcv9WwF3+CjnqdAAAAAElFTkSuQmCC"
+              alt="usb-connected">
+            <select id="transport" class="transport-select" autocomplete="off">
+              <option value="ble" selected>Bluetooth</option>
+              <option value="serial">USB-C</option>
+            </select>
+            <img class="transport-icon ble-icon"
+              src="data:image/png;base64,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"
+              alt="Bluetooth" style="display:none;">
+          </div>
+          <button id="connect" class="btn btn-primary connect-btn">
+            <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M12 2v10" />
+              <path d="M18.4 6.6a9 9 0 1 1-12.77.04" />
+            </svg>
+            Connecter
+          </button>
+          <button id="disconnect" class="btn btn-danger-outline connect-btn hidden" disabled>
+            <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M12 2v10" />
+              <path d="M18.4 6.6a9 9 0 1 1-12.77.04" />
+            </svg>
+            Déconnecter
+          </button>
+          <div id="deviceStatus" class="device-status" aria-live="polite">
+            <span id="deviceName">Non connecté</span>
+            <!-- Shown while NMEA positions are received and the browser is online -->
+            <button id="mapToggle" class="map-btn hidden" title="Voir la position sur la carte">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M20 10c0 4.99-5.54 10.19-7.4 11.8a1 1 0 0 1-1.2 0C9.54 20.19 4 14.99 4 10a8 8 0 0 1 16 0" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              Carte
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- Contrôles de configuration -->
       <div class="control-group">
-        <div class="control-row">
-          <div style="flex: 1; height : 75px;">
-            <label>Vitesse de transmission</label>
-            <select id="baud">
-              <option>4800</option>
-              <option>9600</option>
-              <option>19200</option>
-              <option>28800</option>
-              <option>38400</option>
-              <option>57600</option>
-              <option>76800</option>
-              <option selected>115200</option>
-              <option>230400</option>
-              <option>460800</option>
-              <option>576000</option>
-              <option>921600</option>
-            </select>
-          </div>
-          <div style="flex: 1; height : 75px;">
-            <label>Configurations</label>
-            <div class="file-group">
-              <select id="configSelect">
-                <option value="">— Choisir une configuration —</option>
-              </select>
-              <button id="refreshList" class="refresh-btn" title="Rafraîchir la liste">↻</button>
+        <div class="control-row config-row mobile-config-row" style="align-items: flex-end; flex-wrap: wrap;">
+          <div style="flex: 1; display: flex; align-items: flex-end; gap: 8px;">
+            <div style="flex: 2 1 0; min-width: 0;">
+              <label>Configurations</label>
+              <div class="file-group" style="display: flex; gap: 8px; align-items: flex-end;">
+                <select id="configSelect">
+                  <option value="">— Choisir une configuration —</option>
+                </select>
+              </div>
             </div>
-          </div>
-          <div style="flex: 0 0 auto; height : 75px;">
-            <label>&nbsp;</label>
-            <div class="settings-menu">
-              <button class="settings-btn" id="settingsToggle" title="Paramètres avancés">⚙️</button>
+            <div style="flex: 0 0 auto; display: flex; align-items: flex-end;">
+              <div class="settings-menu">
+                <button class="settings-btn" id="settingsToggle" title="Paramètres avancés"
+                  aria-label="Paramètres avancés">
+                  <svg class="settings-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path
+                      d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
         </div>
+        <div id="configSummaryTableContainer" class="config-summary hidden"></div>
       </div>
 
       <!-- Zone de description -->
@@ -600,16 +112,41 @@
         </div>
       </div>
 
+      <!-- Téléverser (déplacé juste après la description) -->
+      <div class="control-group" style="margin-top: 8px;">
+        <button id="upload" class="btn btn-success" disabled style="width:100%;">
+          <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <path d="M17 8l-5-5-5 5" />
+            <path d="M12 3v12" />
+          </svg>
+          Téléverser
+        </button>
+      </div>
+
       <!-- Barre de progression -->
       <div class="progress-container hidden" id="progressContainer">
-        <div class="progress-header">
-          <div></div>
-          <button class="progress-info-btn" id="terminalToggle" title="Afficher/masquer le terminal UART">i</button>
+        <!-- Command counter + bar on one line, terminal toggle below -->
+        <div class="progress-row">
+          <span class="progress-count" id="progressText">–</span>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+          </div>
         </div>
-        <div class="progress-bar">
-          <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        <div class="progress-actions">
+          <button class="terminal-toggle" id="terminalToggle" aria-expanded="false" aria-controls="uartTerminal"
+            title="Afficher le terminal UART">
+            <svg class="icon-open" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <polyline points="4 17 10 11 4 5" />
+              <line x1="12" y1="19" x2="20" y2="19" />
+            </svg>
+            <span class="label-open">Terminal</span>
+            <svg class="icon-close" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M18 6 6 18" />
+              <path d="m6 6 12 12" />
+            </svg>
+          </button>
         </div>
-        <div class="progress-text" id="progressText">En attente...</div>
         <div class="uart-terminal hidden" id="uartTerminal"></div>
       </div>
 
@@ -633,618 +170,94 @@
             <option value="\r\n" selected>CRLF</option>
             <option value="\n">LF</option>
             <option value="\r">CR</option>
+            <option value="">Aucun</option>
           </select>
         </div>
 
         <div class="control-group">
-          <label>Délai entre commande(s)</label>
+          <label>Vitesse de transmission</label>
+          <select id="baud">
+            <option>4800</option>
+            <option>9600</option>
+            <option>19200</option>
+            <option>28800</option>
+            <option>38400</option>
+            <option>57600</option>
+            <option>76800</option>
+            <option selected>115200</option>
+            <option>230400</option>
+            <option>460800</option>
+            <option>576000</option>
+            <option>921600</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <!-- Beginner mode always waits for the answer: the delay is its maximum -->
+          <label>Attente max. de la réponse (s)</label>
           <input id="delay" type="number" min="0" step="0.1" value="5">
         </div>
 
         <div class="control-group">
-          <label>Charger un fichier personnel</label>
-          <input id="configFile" type="file" accept=".txt,.cfg,.conf,.ini,.log,.nmea,.csv,.*" />
+          <label for="configFile">Charger un fichier personnel</label>
+          <!-- Native file input hidden: the label below is the visible picker -->
+          <input id="configFile" class="visually-hidden" type="file" accept=".txt,.cfg,.conf,.ini,.log,.nmea,.csv,.*" />
+          <label for="configFile" class="file-picker">
+            <svg class="file-picker-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+              <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+              <path d="M12 12v6" />
+              <path d="m15 15-3-3-3 3" />
+            </svg>
+            <span id="configFileName">Choisir un fichier (.cfg, .txt…)</span>
+          </label>
         </div>
 
         <div class="control-group">
-          <button id="save" class="btn btn-primary" style="width:100%;margin-top:8px">💾 SAVECONFIG</button>
+          <button id="save" class="btn btn-primary" style="width:100%;margin-top:8px">
+            <svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path
+                d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" />
+              <path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7" />
+              <path d="M7 3v4a1 1 0 0 0 1 1h7" />
+            </svg>
+            SAVECONFIG
+          </button>
         </div>
       </div>
     </div>
-  </div>
 
-  <footer>
-    <span>© 2025 by Centipede-RTK</span>
-    <a href="https://github.com/jancelin/WebSerial-CRTK" target="_blank" rel="noopener">
-      <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-        <path fill="currentColor"
-          d="M8 .2a8 8 0 0 0-2.53 15.59c.4.07.55-.17.55-.38v-1.34c-2.25.49-2.72-1.08-2.72-1.08-.37-.95-.9-1.2-.9-1.2-.74-.51.06-.5.06-.5.82.06 1.25.85 1.25.85.73 1.24 1.92.88 2.39.67.07-.53.28-.88.5-1.08-1.8-.2-3.7-.9-3.7-4a3.14 3.14 0 0 1 .84-2.18 2.9 2.9 0 0 1 .08-2.15s.68-.22 2.22.83a7.6 7.6 0 0 1 4.05 0c1.54-1.05 2.22-.83 2.22-.83.45 1.08.17 1.89.09 2.09a3.13 3.13 0 0 1 .84 2.18c0 3.11-1.9 3.8-3.71 4 .29.25.54.73.54 1.48v2.2c0 .21.15.45.55.38A8 8 0 0 0 8 .2Z" />
-      </svg>
-      github.com/jancelin/Webserial-CRTK
-    </a>
-  </footer>
-
-  <script>
-    /* ---------------------- Helpers UI ---------------------- */
-    const $ = s => document.querySelector(s);
-    let currentConfig = '';
-    let isConnected = false;
-    let terminalVisible = false;
-
-    // Mode switch functionality - Simple redirection
-    document.addEventListener('DOMContentLoaded', () => {
-      const modeToggle = $('#modeToggle');
-
-      // Handle mode switch
-      modeToggle.onchange = () => {
-        if (modeToggle.checked) {
-          // Switch to advanced mode - redirect to advanced page
-          localStorage.setItem('centipede-mode', 'advanced');
-          window.location.href = 'index_advanced.html';
-        }
-      };
-    });
-
-    function updateStatus(message, type = 'info') {
-      const statusEl = $('#status');
-      statusEl.textContent = message;
-      statusEl.className = `status ${type}`;
-    }
-
-    function showProgress(show = true) {
-      const container = $('#progressContainer');
-      if (show) {
-        container.classList.remove('hidden');
-      } else {
-        container.classList.add('hidden');
-        // Masquer aussi le terminal quand on masque la barre de progression
-        $('#uartTerminal').classList.add('hidden');
-        terminalVisible = false;
-      }
-    }
-
-    function updateProgress(percentage, text) {
-      $('#progressFill').style.width = percentage + '%';
-      $('#progressText').textContent = text;
-    }
-
-    function toggleTerminal() {
-      const terminal = $('#uartTerminal');
-      terminalVisible = !terminalVisible;
-
-      if (terminalVisible) {
-        terminal.classList.remove('hidden');
-      } else {
-        terminal.classList.add('hidden');
-      }
-    }
-
-    function addToTerminal(message, type = 'info') {
-      const terminal = $('#uartTerminal');
-      const timestamp = new Date().toLocaleTimeString('fr-FR', {
-        hour12: false,
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        fractionalSecondDigits: 3
-      });
-
-      let prefix = '';
-      let cssClass = '';
-
-      switch (type) {
-        case 'sent':
-          prefix = '→ TX: ';
-          cssClass = 'sent';
-          break;
-        case 'received':
-          prefix = '← RX: ';
-          cssClass = 'received';
-          break;
-        default:
-          prefix = '• ';
-          break;
-      }
-
-      const line = document.createElement('div');
-      line.innerHTML = `<span class="timestamp">[${timestamp}]</span> <span class="${cssClass}">${prefix}${escapeHtml(message)}</span>`;
-      terminal.appendChild(line);
-
-      // Auto-scroll vers le bas
-      terminal.scrollTop = terminal.scrollHeight;
-
-      // Limiter le nombre de lignes (garder seulement les 200 dernières)
-      const lines = terminal.children;
-      if (lines.length > 200) {
-        terminal.removeChild(lines[0]);
-      }
-    }
-
-    function clearTerminal() {
-      $('#uartTerminal').innerHTML = '';
-    }
-
-    function getEOL() {
-      return eval('`' + $('#eol').value + '`');
-    }
-
-    // Fonction pour extraire la description depuis les commentaires du fichier
-    function extractConfigDescription(content) {
-      if (!content) return null;
-
-      const lines = content.split('\n');
-      const description = {
-        title: '',
-        details: []
-      };
-
-      // Recherche des tags #title: et #content: dans les commentaires
-      for (let i = 0; i < Math.min(30, lines.length); i++) {
-        const line = lines[i].trim();
-
-        // Ignorer les lignes vides
-        if (!line) continue;
-
-        // Si c'est un commentaire (# ou //)
-        if (line.startsWith('#') || line.startsWith('//')) {
-          const comment = line.replace(/^(#|\/\/)\s*/, '');
-
-          // Rechercher le tag title:
-          if (comment.toLowerCase().startsWith('title:')) {
-            description.title = comment.substring(6).trim();
-          }
-          // Rechercher le tag content:
-          else if (comment.toLowerCase().startsWith('content:')) {
-            const content = comment.substring(8).trim();
-            if (content.length > 0) {
-              description.details.push(content);
-            }
-          }
-        } else {
-          // Si on rencontre une ligne non-commentaire et qu'on a déjà des données, on arrête
-          if (description.title || description.details.length > 0) {
-            break;
-          }
-        }
-      }
-
-      return (description.title || description.details.length) ? description : null;
-    }
-
-    // Fonction pour afficher la description
-    function displayConfigDescription(description) {
-      const container = $('#configDescriptionContainer');
-      const descElement = $('#configDescription');
-
-      if (!description) {
-        container.style.display = 'none';
-        return;
-      }
-
-      let html = '';
-      if (description.title) {
-        html += `<h4>${convertUrlsToLinks(escapeHtml(description.title))}</h4>`;
-      }
-
-      if (description.details.length > 0) {
-        description.details.forEach(detail => {
-          html += `<p>${convertUrlsToLinks(escapeHtml(detail))}</p>`;
-        });
-      }
-
-      descElement.innerHTML = html;
-      container.style.display = 'block';
-    }
-
-    // Fonction utilitaire pour échapper le HTML
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-
-    // Fonction pour convertir les URLs en liens cliquables
-    function convertUrlsToLinks(text) {
-      // Expression régulière pour détecter les URLs
-      const urlRegex = /(https?:\/\/[^\s<>"]+)/gi;
-
-      return text.replace(urlRegex, function (url) {
-        // Nettoyer l'URL pour enlever la ponctuation finale éventuelle
-        let cleanUrl = url;
-        const punctuation = /[.,!?;:]$/;
-        let endPunct = '';
-
-        if (punctuation.test(url)) {
-          endPunct = url.slice(-1);
-          cleanUrl = url.slice(0, -1);
-        }
-
-        return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" style="color: var(--primary); text-decoration: underline;">${cleanUrl}</a>${endPunct}`;
-      });
-    }
-
-    // Toggle settings modal
-    $('#settingsToggle').onclick = () => {
-      const modal = $('#settingsModal');
-      modal.classList.add('active');
-    };
-
-    // Toggle terminal
-    $('#terminalToggle').onclick = () => {
-      toggleTerminal();
-    };
-
-    // Close modal
-    $('#closeModal').onclick = () => {
-      const modal = $('#settingsModal');
-      modal.classList.remove('active');
-    };
-
-    // Close modal when clicking on backdrop
-    $('#settingsModal').onclick = (e) => {
-      if (e.target === $('#settingsModal')) {
-        $('#settingsModal').classList.remove('active');
-      }
-    };
-
-    // Close modal with Escape key
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        $('#settingsModal').classList.remove('active');
-      }
-    });
-
-    /* ---------------------- Web Serial state ---------------------- */
-    let port, reader, writer;
-    let textDecoder, textEncoder;
-    let readableStreamClosed, writableStreamClosed;
-    let sendingBatch = false;
-
-    function ensureWebSerial() {
-      if (!('serial' in navigator)) {
-        updateStatus('Web Serial non supporté dans ce navigateur. Utilisez Chrome/Chromium desktop.', 'error');
-        throw new Error('Web Serial unsupported');
-      }
-    }
-
-    /* ---------------------- Connect / Disconnect ---------------------- */
-    $('#connect').onclick = async () => {
-      try {
-        ensureWebSerial();
-        const baudRate = parseInt($('#baud').value, 10) || 115200;
-
-        updateStatus('Connexion en cours...', 'info');
-
-        // Filtres USB : FTDI(0x0403), CP210x(0x10C4), CH340(0x1A86)
-        const filters = [{ usbVendorId: 0x0403 }, { usbVendorId: 0x10C4 }, { usbVendorId: 0x1A86 }];
-        port = await navigator.serial.requestPort({ filters });
-        await port.open({ baudRate });
-
-        // Streams enc/dec et "pipes" avec suivi pour fermeture propre
-        textDecoder = new TextDecoderStream();
-        readableStreamClosed = port.readable.pipeTo(textDecoder.writable);
-        reader = textDecoder.readable.getReader();
-
-        textEncoder = new TextEncoderStream();
-        writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
-        writer = textEncoder.writable.getWriter();
-
-        // Boucle de lecture (terminée par reader.cancel() à la déconnexion)
-        (async function readLoop() {
-          try {
-            while (true) {
-              const { value, done } = await reader.read();
-              if (done) break;
-              // Afficher les données reçues dans le terminal si visible
-              if (value && value.length > 0) {
-                addToTerminal(value, 'received');
-              }
-            }
-          } catch (e) {
-            updateStatus('Erreur de lecture: ' + e.message, 'error');
-          }
-        })();
-
-        isConnected = true;
-        $('#connect').classList.add('hidden');
-        $('#disconnect').classList.remove('hidden');
-        $('#disconnect').disabled = false;
-        $('#upload').disabled = !currentConfig;
-        updateStatus(`Connecté @ ${baudRate} bauds`, 'success');
-      } catch (e) {
-        updateStatus('Erreur de connexion: ' + (e?.message || e), 'error');
-      }
-    };
-
-    $('#disconnect').onclick = async () => {
-      try {
-        if (!port) return;
-        if (sendingBatch) {
-          updateStatus('Envoi en cours — attente avant déconnexion…', 'info');
-        }
-
-        // 1) Arrêter proprement la lecture
-        try { await reader?.cancel(); } catch { }
-        try { await readableStreamClosed?.catch(() => { }); } catch { }
-        reader?.releaseLock?.();
-
-        // 2) Fermer proprement l'écriture
-        try { await writer?.close(); } catch { }
-        try { await writableStreamClosed?.catch(() => { }); } catch { }
-        writer?.releaseLock?.();
-
-        // 3) Fermer le port
-        await port.close();
-
-        // 4) Nettoyage d'état
-        port = undefined; reader = undefined; writer = undefined;
-        textDecoder = textEncoder = undefined;
-        readableStreamClosed = writableStreamClosed = undefined;
-
-        isConnected = false;
-        $('#connect').classList.remove('hidden');
-        $('#disconnect').classList.add('hidden');
-        $('#disconnect').disabled = true;
-        $('#upload').disabled = true;
-        showProgress(false);
-        updateStatus('Déconnecté', 'info');
-      } catch (e) {
-        updateStatus('Erreur de déconnexion: ' + (e?.message || e), 'error');
-      }
-    };
-
-    /* ---------------------- Listing des fichiers de conf ---------------------- */
-    // Repo GitHub (adapter si tu renommes le dépôt ou l'owner)
-    const GH_OWNER = 'jancelin';
-    const GH_REPO = 'WebSerial-CRTK';
-    // Essaie ces branches dans l'ordre
-    const GH_BRANCH_CANDIDATES = ['gh-pages', 'main', 'master'];
-    // Extensions autorisées
-    const ALLOWED_EXT = /\.(txt|cfg|conf|ini|nmea|csv|log)$/i;
-
-    // Rafraîchir manuellement
-    $('#refreshList').onclick = () => populateConfigSelect(true);
-
-    // Appel automatique au chargement de la page
-    document.addEventListener('DOMContentLoaded', () => populateConfigSelect(false));
-
-    async function populateConfigSelect(manual) {
-      const sel = $('#configSelect');
-      sel.innerHTML = '<option value="" disabled selected>— Choisir une configuration —</option>';
-
-      // 0) Tentative: fichier manifeste optionnel (si tu ajoutes conf_files/index.json)
-      //    Format attendu: ["Feasycom_BT836b.txt","UM980_rover_fullNMEA_5hz_BT921600bd_UP_STABLE.txt", ...]
-      const manifestFiles = await tryFetchManifestJSON();
-      if (manifestFiles && manifestFiles.length) {
-        addOptions(sel, manifestFiles.map(n => ({ name: n, url: 'conf_files/' + n })));
-        updateStatus(`${manifestFiles.length} fichier(s) de configuration trouvé(s)`, 'success');
-        return;
-      }
-
-      // 1) En local: listing HTML (python -m http.server)
-      const localFiles = await tryFetchLocalIndex();
-      if (localFiles && localFiles.length) {
-        addOptions(sel, localFiles.map(n => ({ name: n, url: 'conf_files/' + n })));
-        updateStatus(`${localFiles.length} fichier(s) de configuration détecté(s).`, 'success');
-        return;
-      }
-
-      // 2) Fallback GitHub API (utile sur GitHub Pages)
-      const ghFiles = await tryFetchGitHubAPI();
-      if (ghFiles && ghFiles.length) {
-        addOptions(sel, ghFiles); // ghFiles contient {name, url:download_url}
-        updateStatus(`${ghFiles.length} fichier(s) de configuration via GitHub API`, 'success');
-        return;
-      }
-
-      updateStatus(manual ? 'Aucun fichier de configuration détecté.' :
-        'Impossible de lister conf_files/ (auto-index ou API). Utilisez le bouton "fichier personnel".', 'info');
-    }
-
-    function addOptions(selectEl, items) {
-      // items: [{name:'file.txt', url:'...'}]
-      items
-        .filter(it => ALLOWED_EXT.test(it.name))
-        .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
-        .forEach(it => {
-          const opt = document.createElement('option');
-          opt.value = it.url;
-          // Nettoyer le nom : supprimer l'extension et remplacer _ par des espaces
-          const cleanName = it.name.replace(/\.[^/.]+$/, '').replace(/_/g, ' ');
-          opt.textContent = cleanName;
-          selectEl.appendChild(opt);
-        });
-    }
-
-    async function tryFetchManifestJSON() {
-      try {
-        const resp = await fetch('conf_files/index.json?t=' + Date.now(), { cache: 'no-store' });
-        if (!resp.ok) return null;
-        const arr = await resp.json();
-        return (Array.isArray(arr) ? arr.filter(n => typeof n === 'string') : null);
-      } catch { return null; }
-    }
-
-    async function tryFetchLocalIndex() {
-      try {
-        const resp = await fetch('conf_files/?t=' + Date.now(), { cache: 'no-store' });
-        if (!resp.ok) return null;
-        const html = await resp.text();
-        const doc = new DOMParser().parseFromString(html, 'text/html');
-        let files = Array.from(doc.querySelectorAll('a[href]'))
-          .map(a => a.getAttribute('href') || '')
-          .filter(href => href && !href.startsWith('?') && !href.startsWith('/'))
-          .filter(href => !href.endsWith('/'))
-          .filter(href => ALLOWED_EXT.test(href));
-        return files;
-      } catch { return null; }
-    }
-
-    async function tryFetchGitHubAPI() {
-      for (const branch of GH_BRANCH_CANDIDATES) {
-        try {
-          const apiUrl = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/conf_files?ref=${encodeURIComponent(branch)}`;
-          const apiResp = await fetch(apiUrl, { cache: 'no-store' });
-          if (!apiResp.ok) continue;
-          const items = await apiResp.json();
-          const files = (Array.isArray(items) ? items : [])
-            .filter(it => it && it.type === 'file' && typeof it.name === 'string' && typeof it.download_url === 'string')
-            .filter(it => ALLOWED_EXT.test(it.name))
-            .map(it => ({ name: it.name, url: it.download_url }));
-          if (files.length) return files;
-        } catch { /* essaye la branche suivante */ }
-      }
-      return null;
-    }
-
-    /* ---------------------- Chargement fichier sélectionné / perso ---------------------- */
-    $('#configSelect').onchange = async (ev) => {
-      const url = ev.target.value;
-      if (!url) {
-        currentConfig = '';
-        $('#upload').disabled = true;
-        displayConfigDescription(null);
-        return;
-      }
-      try {
-        updateStatus('Chargement de la configuration...', 'info');
-        const resp = await fetch(url, { cache: 'no-store' });
-        if (!resp.ok) throw new Error('HTTP ' + resp.status);
-        const txt = await resp.text();
-        currentConfig = normalizeText(txt);
-        $('#upload').disabled = !isConnected;
-        updateStatus('Configuration chargée: ' + url.split('/').pop(), 'success');
-
-        // Extraire et afficher la description
-        const description = extractConfigDescription(txt);
-        displayConfigDescription(description);
-      } catch (e) {
-        updateStatus('Impossible de charger ' + url + ' : ' + (e?.message || e), 'error');
-        currentConfig = '';
-        $('#upload').disabled = true;
-        displayConfigDescription(null);
-      }
-    };
-
-    // Fichier perso (local)
-    $('#configFile').onchange = async (ev) => {
-      const f = ev.target.files?.[0];
-      if (!f) {
-        currentConfig = '';
-        $('#upload').disabled = true;
-        displayConfigDescription(null);
-        return;
-      }
-      try {
-        updateStatus('Chargement du fichier...', 'info');
-        const txt = await f.text();
-        currentConfig = normalizeText(txt);
-        $('#configSelect').value = ''; // désélectionner le menu conf_files
-        $('#upload').disabled = !isConnected;
-        updateStatus('Fichier chargé: ' + f.name, 'success');
-
-        // Extraire et afficher la description
-        const description = extractConfigDescription(txt);
-        displayConfigDescription(description);
-      } catch (e) {
-        updateStatus('Erreur lecture fichier: ' + (e?.message || e), 'error');
-        currentConfig = '';
-        $('#upload').disabled = true;
-        displayConfigDescription(null);
-      }
-    };
-
-    function normalizeText(t) {
-      // Normalise fins de ligne & supprime BOM
-      return t.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim() + '\n';
-    }
-
-    /* ---------------------- Upload des commandes ---------------------- */
-    $('#upload').onclick = async () => {
-      if (!writer) {
-        updateStatus('Non connecté.', 'error');
-        return;
-      }
-      if (!currentConfig) {
-        updateStatus('Aucune configuration chargée.', 'error');
-        return;
-      }
-      if (sendingBatch) {
-        updateStatus('Envoi déjà en cours. Patientez...', 'info');
-        return;
-      }
-
-      const lines = currentConfig.split('\n')
-        .map(s => s.trim())
-        .filter(s => s.length && !s.startsWith('#') && !s.startsWith('//') && !s.startsWith(';'));
-
-      if (!lines.length) {
-        updateStatus('Aucune commande valide dans la configuration.', 'error');
-        return;
-      }
-
-      const delaySec = Math.max(0, parseFloat($('#delay').value || '5') || 5);
-      const eol = getEOL();
-
-      sendingBatch = true;
-      $('#upload').disabled = true;
-      showProgress(true);
-
-      try {
-        updateStatus(`Envoi de ${lines.length} commande(s)...`, 'info');
-        updateProgress(0, 'Démarrage...');
-
-        // Effacer le terminal et ajouter un message de début
-        clearTerminal();
-        addToTerminal(`=== Début de la configuration (${lines.length} commandes) ===`);
-
-        for (let i = 0; i < lines.length; i++) {
-          const cmd = lines[i];
-          await writer.write(cmd + eol);
-
-          // Afficher la commande envoyée dans le terminal
-          addToTerminal(cmd + eol.replace(/\n/g, '\\n').replace(/\r/g, '\\r'), 'sent');
-
-          const progress = ((i + 1) / lines.length) * 100;
-          updateProgress(progress, `Commande ${i + 1}/${lines.length}: ${cmd.substring(0, 30)}${cmd.length > 30 ? '...' : ''}`);
-
-          if (i < lines.length - 1) {
-            await sleep(delaySec * 1000);
-          }
-        }
-
-        updateProgress(100, 'Configuration envoyée avec succès!');
-        updateStatus('Configuration envoyée avec succès!', 'success');
-        addToTerminal('=== Fin de la configuration ===');
-
-        // Masquer la barre de progression après 3 secondes
-        setTimeout(() => showProgress(false), 3000);
-      } catch (e) {
-        updateStatus('Erreur lors de l\'envoi: ' + (e?.message || e), 'error');
-        showProgress(false);
-      } finally {
-        sendingBatch = false;
-        $('#upload').disabled = !currentConfig || !isConnected;
-      }
-    };
-
-    $('#save').onclick = async () => {
-      if (!writer) {
-        updateStatus('Non connecté.', 'error');
-        return;
-      }
-      try {
-        const command = 'SAVECONFIG' + getEOL();
-        await writer.write(command);
-        addToTerminal(command.replace(/\n/g, '\\n').replace(/\r/g, '\\r'), 'sent');
-        updateStatus('Commande SAVECONFIG envoyée', 'success');
-      } catch (e) {
-        updateStatus('Erreur SAVECONFIG: ' + (e?.message || e), 'error');
-      }
-    };
-
-    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-  </script>
+    <!-- Map (position, RTK corrections) -->
+    <div class="settings-modal" id="mapModal">
+      <div class="settings-content map-content" role="dialog" aria-label="Carte">
+        <div class="map-banner">
+          <!-- Rendered on each position (fix, satellites, precision, corrections) -->
+          <div class="map-stats" id="mapStats"></div>
+          <button class="map-recenter" id="mapRecenter" title="Recentrer sur la position">Recentrer</button>
+          <button class="close-btn map-close" id="closeMapModal" title="Fermer la carte" aria-label="Fermer la carte">✕</button>
+        </div>
+        <div id="map" class="map"></div>
+      </div>
+    </div>
+
+    <footer>
+      <span class="footer-credit">© 2026 by
+        <img src="static/logo.png" alt="Centipede-RTK" class="logo" />
+        <span class="footer-amp">&amp;</span>
+        <img src="static/natuition-logo.png" alt="NATUITION" class="logo" />
+      </span>
+      <a href="https://github.com/natuition/WebSerial-CRTK" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+          <path fill="currentColor"
+            d="M8 .2a8 8 0 0 0-2.53 15.59c.4.07.55-.17.55-.38v-1.34c-2.25.49-2.72-1.08-2.72-1.08-.37-.95-.9-1.2-.9-1.2-.74-.51.06-.5.06-.5.82.06 1.25.85 1.25.85.73 1.24 1.92.88 2.39.67.07-.53.28-.88.5-1.08-1.8-.2-3.7-.9-3.7-4a3.14 3.14 0 0 1 .84-2.18 2.9 2.9 0 0 1 .08-2.15s.68-.22 2.22.83a7.6 7.6 0 0 1 4.05 0c1.54-1.05 2.22-.83 2.22-.83.45 1.08.17 1.89.09 2.09a3.13 3.13 0 0 1 .84 2.18c0 3.11-1.9 3.8-3.71 4 .29.25.54.73.54 1.48v2.2c0 .21.15.45.55.38A8 8 0 0 0 8 .2Z" />
+        </svg>
+        github.com/natuition/WebSerial-CRTK
+      </a>
+    </footer>
+
+    <script src="static/js/script.js"></script>
+    <script src="static/js/index-script.js"></script>
+    <script src="static/js/nmea-map.js"></script>
 </body>
 
 </html>

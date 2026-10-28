@@ -1,0 +1,294 @@
+/* ========================================
+  Configurateur NavX - Styles for index_advanced.html (advanced mode, desktop only)
+  Shared components (connection row, buttons, terminal, progress, map) are in styles.css:
+  this file only lays out the page (connection card, editor | terminal columns).
+  ======================================== */
+
+body {
+  max-width: 1200px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1 {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+}
+
+/* White card, like the beginner page container */
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+  box-sizing: border-box;
+}
+
+/* ---------------------- Connection card ---------------------- */
+.adv-connection {
+  margin-bottom: 16px;
+}
+
+/* Link settings, visible here (in a modal on the beginner page) */
+.adv-settings {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #eaf3ec;
+}
+
+.adv-settings .field {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.adv-settings .field select,
+.adv-settings .field input {
+  width: auto;
+  height: 40px;
+  box-sizing: border-box;
+  padding: 0 10px;
+  font-size: 0.9rem;
+}
+
+.adv-settings .field input[type="number"] {
+  width: 80px;
+}
+
+.adv-settings .unit {
+  font-weight: 600;
+  color: #666;
+}
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--dark);
+  cursor: pointer;
+}
+
+.check input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+}
+
+/* ---------------------- Editor | terminal ---------------------- */
+.adv-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  /* Both columns as tall as the viewport allows */
+  min-height: max(520px, calc(100vh - 330px));
+}
+
+.adv-editor,
+.adv-terminal {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.adv-editor-head {
+  display: flex;
+  gap: 8px;
+}
+
+.adv-editor-head select {
+  flex: 1 1 auto;
+  height: 46px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Square icon button (file picker, clear terminal) */
+.icon-btn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  box-sizing: border-box;
+  padding: 0;
+  border: 2px solid #e8ecf1;
+  border-radius: 10px;
+  background: white;
+  color: var(--dark);
+  cursor: pointer;
+  transition: border-color 0.3s, color 0.3s;
+}
+
+.icon-btn:hover,
+#configFile:focus-visible + .icon-btn {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.icon-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+#cmd {
+  flex: 1 1 auto;
+  min-height: 260px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 2px solid #e8ecf1;
+  border-radius: 10px;
+  resize: none;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--dark);
+  transition: border-color 0.3s;
+}
+
+#cmd:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(12, 144, 66, 0.1);
+}
+
+.adv-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.adv-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  padding: 0 24px;
+  white-space: nowrap;
+}
+
+.adv-actions #send {
+  flex: 1 1 auto;
+}
+
+/* ---------------------- Terminal ---------------------- */
+.adv-terminal-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.adv-terminal-title {
+  flex: 1 1 auto;
+  font-weight: 700;
+  color: var(--dark);
+}
+
+.adv-terminal-head .icon-btn {
+  width: 38px;
+  height: 38px;
+}
+
+.adv-terminal-head .icon-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.adv-terminal-head .icon-btn:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.uart-terminal.adv-log {
+  flex: 1 1 0;
+  min-height: 260px;
+  max-height: none;
+  margin: 0;
+  color: #d1d5db;
+}
+
+.adv-log .warn {
+  color: #f59e0b;
+}
+
+.adv-log .error {
+  color: #f87171;
+  font-weight: 600;
+}
+
+.adv-log .info {
+  color: #9ca3af;
+}
+
+/* Single command line under the terminal */
+.adv-single {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 4px 4px 12px;
+  background: #0f1419;
+  border: 1px solid #2a3139;
+  border-radius: 10px;
+}
+
+.adv-prompt {
+  color: #ffcd00;
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+}
+
+.adv-single input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: #e5e7eb;
+  font-family: 'Courier New', monospace;
+  font-size: 0.95rem;
+  padding: 8px 0;
+}
+
+.adv-single input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.adv-single .btn {
+  height: 38px;
+  padding: 0 16px;
+  font-size: 0.9rem;
+}
+
+footer {
+  margin-top: 16px;
+}
+
+/* Narrow desktop window: terminal under the editor */
+@media (max-width: 1023px) {
+  .adv-main {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  .uart-terminal.adv-log {
+    flex: 0 0 auto;
+    height: 320px;
+  }
+}

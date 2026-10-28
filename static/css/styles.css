@@ -1,0 +1,921 @@
+/* ========================================
+  Centipede-RTK Web Serial - Common styles
+  ======================================== */
+
+/* Common CSS variables */
+:root {
+  --primary: #0c9042;
+  --success: #36b448;
+  --danger: #dc3545;
+  --warning: #ffc107;
+  --light: #f8f9fa;
+  --dark: #121617;
+}
+
+/* Common base styles */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  margin: 0 auto;
+  padding: 0 clamp(12px, 4vw, 20px);
+  line-height: 1.6;
+}
+
+h1 {
+  margin: clamp(18px, 4vw, 28px) 0;
+  text-align: center;
+  color: var(--dark);
+}
+
+/* Logo and branding */
+.brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: clamp(8px, 2vw, 16px);
+}
+
+.brand .logo {
+  height: clamp(2rem, 6vw, 3rem);
+  width: auto;
+}
+
+/* Mode Switch Styles - Common to both versions */
+.mode-switch-container {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 999;
+  background: white;
+  border-radius: 28px;
+  padding: 10px 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  border: 1px solid #e8ecf1;
+  width: 175px;
+}
+
+.mode-switch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: clamp(10px, 2vw, 13px);
+  color: var(--dark);
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 26px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #d0d5dd;
+  transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 26px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px !important;
+  bottom: 3px;
+  background-color: white;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+input:checked + .slider {
+  background-color: var(--primary);
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+.mode-label {
+  font-weight: 700;
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+}
+
+.mode-label.active {
+  color: var(--primary);
+}
+
+/* Common buttons */
+button {
+  font-size: clamp(0.9rem, 2.2vw, 1.05rem);
+  padding: clamp(10px, 2.5vw, 14px) clamp(16px, 3.5vw, 28px);
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.3px;
+}
+
+button[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 12px rgba(12, 144, 66, 0.25);
+}
+
+.btn-primary:hover:not([disabled]) {
+  background: #0a7a38;
+  box-shadow: 0 6px 20px rgba(12, 144, 66, 0.35);
+  transform: translateY(-2px);
+}
+
+.btn-primary:active:not([disabled]) {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(12, 144, 66, 0.2);
+}
+
+.btn-success {
+  background: var(--success);
+  color: white;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.25);
+}
+
+.btn-success:hover:not([disabled]) {
+  background: #2a9a3c;
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.35);
+  transform: translateY(-2px);
+}
+
+.btn-success:active:not([disabled]) {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(40, 167, 69, 0.2);
+}
+
+/* Secondary action (e.g. SAVECONFIG next to Envoyer): green outline */
+.btn-primary-outline,
+.btn.btn-primary-outline {
+  background: white;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+  box-shadow: 0 4px 12px rgba(12, 144, 66, 0.1);
+}
+
+.btn-primary-outline:hover:not([disabled]) {
+  background: #eef7f0;
+  transform: translateY(-2px);
+}
+
+/* Destructive action (e.g. disconnect): outlined, so it doesn't compete with the primary action */
+.btn-danger-outline,
+.btn.btn-danger-outline {
+  background: white;
+  color: var(--danger);
+  border: 2px solid var(--danger);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.15);
+}
+
+.btn-danger-outline:hover:not([disabled]) {
+  background: #fff3f4;
+  box-shadow: 0 6px 20px rgba(220, 53, 69, 0.25);
+  transform: translateY(-2px);
+}
+
+.btn-danger-outline:active:not([disabled]) {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(220, 53, 69, 0.15);
+}
+
+/* Common form elements */
+select,
+input[type="number"],
+input[type="file"] {
+  font-size: clamp(0.9rem, 2.2vw, 1rem);
+  padding: clamp(12px, 2.5vw, 14px);
+  border-radius: 10px;
+  border: 2px solid #e8ecf1;
+  background: white;
+  width: 100%;
+  max-width: none;
+  transition: all 0.3s;
+  font-weight: 500;
+  color: var(--dark);
+}
+
+select:hover,
+input:hover {
+  border-color: #d0d5dd;
+}
+
+select:focus,
+input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(12, 144, 66, 0.1);
+}
+
+/* Common footer */
+footer {
+  margin-top: auto;
+  padding: clamp(14px, 3vw, 24px) 0;
+  border-top: 1px solid #e8ecf1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 2vw, 14px);
+  font-size: clamp(0.8rem, 1.8vw, 0.9rem);
+  color: #666;
+  flex-wrap: wrap;
+}
+
+footer .footer-credit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+footer .footer-credit .logo {
+  height: clamp(1.8rem, 4vw, 2.25rem);
+  width: auto;
+}
+
+footer .footer-amp {
+  color: var(--dark);
+  font-weight: 700;
+}
+
+footer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  color: var(--primary);
+  transition: all 0.3s;
+  font-weight: 600;
+}
+
+footer a:hover {
+  color: #0a7a38;
+}
+
+footer svg {
+  width: clamp(14px, 2.5vw, 18px);
+  height: clamp(14px, 2.5vw, 18px);
+  transition: transform 0.3s;
+}
+
+footer a:hover svg {
+  transform: translateY(-2px);
+}
+
+/* Common utility classes */
+.hidden {
+  display: none;
+}
+
+/* The mobile rule below sets display: flex, which would win over .hidden (desktop-only switch) */
+.mode-switch-container.hidden {
+  display: none;
+}
+
+.muted {
+  opacity: 0.7;
+}
+
+/* Common responsive adjustments */
+@media (max-width: 768px) {
+  .mode-switch-container {
+    top:0;
+    right: 0;
+    position: relative;
+    margin-bottom: 0px;
+    margin-top: 16px;
+    margin-left: auto;
+    justify-content: center;
+    display: flex;
+  }
+
+  body {
+    padding: 0 10px;
+  }
+
+  button {
+    touch-action: manipulation;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 0 8px;
+  }
+
+  footer {
+    flex-direction: column;
+    gap: 6px;
+  }
+}
+
+body {
+  font-size: clamp(14px, 2vw, 18px);
+}
+
+h1 {
+  font-size: clamp(20px, 4vw, 32px);
+}
+
+/* ========================================
+  Shared components (beginner + advanced pages):
+  background, buttons, connection row and status pill,
+  progress, terminal, modals and position map
+  ======================================== */
+
+/* On the root (not body) with a solid color: overscroll areas show the root background color, not the gradient */
+html {
+  background: #eef5f0 linear-gradient(135deg, #f4f8f5 0%, #eaf3ec 100%) fixed;
+}
+
+.btn {
+  font-size: clamp(0.95rem, 2vw, 1.05rem);
+  padding: clamp(11px, 2.5vw, 14px) clamp(18px, 4vw, 28px);
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.4px;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn:disabled {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.progress-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Fixed width + tabular digits: the bar doesn't move while counting */
+.progress-count {
+  flex: 0 0 auto;
+  min-width: 5ch;
+  font-size: clamp(0.85rem, 2vw, 0.95rem);
+  font-weight: 700;
+  color: var(--dark);
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.uart-terminal {
+  background: #0f1419;
+  color: #00ff00;
+  font-family: 'Courier New', monospace;
+  font-size: clamp(11px, 1.8vw, 13px);
+  padding: 14px;
+  border-radius: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+  margin-top: 14px;
+  border: 1px solid #2a3139;
+  white-space: pre-wrap;
+  word-break: break-all;
+  line-height: 1.4;
+}
+
+.uart-terminal::-webkit-scrollbar {
+  width: 8px;
+}
+
+.uart-terminal::-webkit-scrollbar-track {
+  background: #1a1f26;
+}
+
+.uart-terminal::-webkit-scrollbar-thumb {
+  background: #4a5568;
+  border-radius: 4px;
+}
+
+.uart-terminal::-webkit-scrollbar-thumb:hover {
+  background: #5a6578;
+}
+
+.uart-terminal .sent {
+  color: #ffcd00;
+  font-weight: 600;
+}
+
+.uart-terminal .received {
+  color: #00ff00;
+  font-weight: 500;
+}
+
+.uart-terminal .timestamp {
+  color: #6b7280;
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.progress-bar {
+  flex: 1 1 auto;
+  height: 24px;
+  background: #e8ecf1;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #dde3eb;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), #36b448);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 11px;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+/* Connection row: transport selector, connect button, device status (50px like the config row) */
+.connect-row {
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 2vw, 12px);
+}
+
+/* Just wide enough for the icon, "Bluetooth" and the arrow */
+.connect-row .transport-selector {
+  flex: 0 0 auto;
+  width: 180px;
+}
+
+/* Fixed height: no vertical padding, it would clip the label */
+.connect-row .transport-select {
+  height: 50px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Same fixed width for Connecter / Déconnecter: the row doesn't move on (dis)connection */
+.connect-btn {
+  flex: 0 0 auto;
+  width: 200px;
+  height: 50px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.connect-btn.hidden {
+  display: none;
+}
+
+.btn-icon {
+  width: 1.1em;
+  height: 1.1em;
+  margin-right: 0.4em;
+  vertical-align: -0.2em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.device-status {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 50px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  border: 2px solid #e8ecf1;
+  border-radius: 10px;
+  background: #fafbfc;
+  color: #666;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.device-status::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #c4cbd4;
+}
+
+.device-status span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* "Carte" button inside the status pill, pushed to the right */
+.map-btn {
+  margin-left: auto;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 32px;
+  box-sizing: border-box;
+  padding: 0 10px;
+  border: 2px solid var(--primary);
+  border-radius: 999px;
+  background: white;
+  color: var(--primary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.map-btn.hidden {
+  display: none;
+}
+
+.map-btn:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.map-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.device-status.connected {
+  color: var(--primary);
+  border-color: #cde8d3;
+  background: #eef7f0;
+}
+
+.device-status.connected::before {
+  background: var(--primary);
+}
+
+/* Phone: transport + button on the first line, status below */
+@media (max-width: 600px) {
+  .connect-row {
+    flex-wrap: wrap;
+  }
+
+  /* Transport + button share the first line (fixed desktop widths would wrap them) */
+  .connect-row .transport-selector,
+  .connect-btn {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+  }
+
+  .device-status {
+    flex-basis: 100%;
+  }
+
+  .map-btn {
+    height: 36px;
+  }
+}
+
+/* Phones: 16px form fields (smaller makes mobile browsers zoom on focus) */
+@media (max-width: 768px) {
+  select,
+  input[type="number"],
+  input[type="text"] {
+    font-size: 16px;
+  }
+}
+
+/* Transport selector styling */
+.transport-selector {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.transport-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%230c9042' d='M3 5l3 3 3-3z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-color: white;
+  padding-right: 32px;
+  padding-left: 50px;
+  width: 100%;
+  height: 48px;
+  box-sizing: border-box;
+  align-self: center;
+}
+
+.transport-icon {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 10;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.transport-icon.usb-icon {
+  display: block;
+}
+
+.transport-icon.ble-icon {
+  display: none;
+}
+
+.settings-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(3px);
+  padding: 16px;
+  /* Padding inside the 100vw/100vh, otherwise the overlay overflows the screen */
+  box-sizing: border-box;
+}
+
+.settings-modal.active {
+  display: flex;
+}
+
+.settings-content {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  padding: clamp(24px, 5vw, 36px);
+  max-width: 500px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  position: relative;
+  animation: modalSlideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-40px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+  padding-bottom: 18px;
+  border-bottom: 2px solid #eaf3ec;
+}
+
+.modal-title {
+  font-size: clamp(1.2rem, 4vw, 1.4rem);
+  font-weight: 700;
+  color: var(--dark);
+  margin: 0;
+  letter-spacing: 0.3px;
+}
+
+.close-btn {
+  background: white;
+  border: 2px solid #e8ecf1;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  transition: all 0.3s;
+  color: #666;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.close-btn:hover {
+  background: #ffe5e5;
+  border-color: var(--danger);
+  color: var(--danger);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.15);
+}
+
+/* Utility: hidden but still focusable / readable by screen readers.
+   !important so element rules (e.g. .settings-content input[type="file"]) can't make it overflow */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  border: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  white-space: nowrap !important;
+}
+
+/* Position map modal */
+/* No title bar: the banner (stats, Recentrer, close) sits directly on top of the map */
+.settings-content.map-content {
+  max-width: 900px;
+  padding: 12px;
+}
+
+.close-btn.map-close {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  font-size: 18px;
+}
+
+/* White banner attached on top of the map: fix type, satellites, precision */
+.map-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: white;
+  border: 1px solid #e8ecf1;
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+}
+
+.map-stats {
+  flex: 1 1 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 24px;
+}
+
+.map-stat {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.map-stat small {
+  font-size: 0.75rem;
+  color: #666;
+}
+
+.map-stat strong {
+  font-size: 1.05rem;
+  color: var(--dark);
+  font-variant-numeric: tabular-nums;
+}
+
+.map {
+  height: min(60vh, 520px);
+  border-radius: 0 0 10px 10px;
+  overflow: hidden;
+  border: 1px solid #e8ecf1;
+}
+
+.map-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #666;
+  font-weight: 600;
+  text-align: center;
+  padding: 16px;
+}
+
+.map-marker {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--fix-color, var(--primary));
+  border: 3px solid white;
+  box-shadow: 0 0 0 2px var(--fix-color, var(--primary)), 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.map-fix {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--fix-color);
+  color: white;
+  font-weight: 700;
+}
+
+.map-recenter {
+  flex: 0 0 auto;
+  padding: 6px 12px;
+  border: 2px solid #e8ecf1;
+  border-radius: 999px;
+  background: white;
+  color: var(--primary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.map-recenter:hover {
+  border-color: var(--primary);
+}
+
+/* Phone: transport selector and map banner (after their base rules so they win) */
+@media (max-width: 600px) {
+  /* Narrow selector: smaller icon and paddings so "Bluetooth" fits */
+  .transport-icon {
+    left: 6px;
+    width: 26px;
+    height: 26px;
+  }
+
+  .connect-row .transport-select {
+    padding-left: 38px;
+    padding-right: 22px;
+    background-position: right 8px center;
+  }
+
+  /* Map banner: stats on a compact 2-column grid, Recentrer / close on the right */
+  .map-banner {
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .map-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 12px;
+  }
+
+  .map-stats .map-fix {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  .map-stat small {
+    font-size: 0.7rem;
+  }
+
+  .map-stat strong {
+    font-size: 0.95rem;
+  }
+
+  .map-recenter {
+    padding: 6px 10px;
+  }
+}
