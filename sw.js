@@ -1,4 +1,4 @@
-const CACHE = 'webserial-crtk-v4';
+const CACHE = 'webserial-crtk-v5';
 const NETWORK_TIMEOUT_MS = 3000;
 const PRECACHE_URLS = [
     '/',
@@ -12,6 +12,7 @@ const PRECACHE_URLS = [
     '/static/js/index-script.js',
     '/static/js/index-advanced-script.js',
     '/static/logo.png',
+    '/static/natuition-logo.png',
     '/static/icons/logo-192.png',
     '/static/icons/logo-512.png',
     '/conf_files/advanced/manifest.json',
