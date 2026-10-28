@@ -94,6 +94,17 @@ function clearLog() {
     logEl.innerHTML = '';
 }
 
+/**
+ * The delay is the max wait for the answer (ack) or a fixed pause between commands (no ack)
+ */
+function updateDelayLabel() {
+    const label = $('#delayLabel');
+    if (label) label.textContent = waitAck ? 'Attente max.' : 'Pause';
+    $('#delay').title = waitAck
+        ? 'Temps d’attente maximal de la réponse avant de passer à la commande suivante'
+        : 'Pause fixe entre deux commandes';
+}
+
 function updateProgress(done, total) {
     $('#progressFill').style.width = (total ? (done / total) * 100 : 0) + '%';
     $('#progressText').textContent = `${done}/${total}`;
@@ -133,8 +144,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const waitAckEl = $('#waitAck');
     if (waitAckEl) {
         waitAck = !!waitAckEl.checked;
+        updateDelayLabel();
         waitAckEl.addEventListener('change', () => {
             waitAck = !!waitAckEl.checked;
+            updateDelayLabel();
             logLine(waitAck ? 'Attente d’acquittement activée' : 'Attente d’acquittement désactivée');
         });
     }

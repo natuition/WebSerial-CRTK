@@ -95,13 +95,14 @@
                     <option value="\r">CR</option>
                 </select>
             </label>
-            <label class="field">Délai
-                <input id="delay" type="number" min="0" step="0.1" value="5">
-                <span class="unit">s</span>
-            </label>
             <label class="check">
                 <input type="checkbox" id="waitAck" checked>
                 Attendre acquittement
+            </label>
+            <!-- Same field, two meanings: max wait for the answer (ack) or fixed pause (no ack) -->
+            <label class="field"><span id="delayLabel">Attente max.</span>
+                <input id="delay" type="number" min="0" step="0.1" value="5">
+                <span class="unit">s</span>
             </label>
         </div>
     </section>
