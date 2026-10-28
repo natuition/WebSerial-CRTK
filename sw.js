@@ -1,4 +1,4 @@
-const CACHE = 'webserial-crtk-v15';
+const CACHE = 'webserial-crtk-v16';
 const NETWORK_TIMEOUT_MS = 3000;
 const PRECACHE_URLS = [
     '/',
@@ -15,8 +15,9 @@ const PRECACHE_URLS = [
     '/static/logo.png',
     '/static/natuition-logo.png',
     '/static/navx-logo.png',
-    '/static/icons/logo-192.png',
-    '/static/icons/logo-512.png',
+    '/static/icons/navx-192.png',
+    '/static/icons/navx-512.png',
+    '/static/icons/apple-touch-icon.png',
     '/static/icons/navx-favicon.png',
     '/conf_files/usb/manifest.json',
     '/conf_files/usb/NavX_GNSS_Mixed.cfg',
