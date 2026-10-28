@@ -223,6 +223,19 @@ async function renderConfigSummaryTable() {
 }
 
 /* ---------------------- Welcome Message ---------------------- */
+const WELCOME_HIDDEN_KEY = 'welcomeHidden';
+
+/**
+ * Return true when the user chose "Ne plus afficher ce message"
+ */
+function isWelcomeHiddenByUser() {
+    try {
+        return localStorage.getItem(WELCOME_HIDDEN_KEY) === '1';
+    } catch (e) {
+        return false;
+    }
+}
+
 function showWelcomeMessage() {
     // Vérifier si le message n'existe pas déjà
     if (document.getElementById('welcomeContainer')) {
@@ -233,7 +246,7 @@ function showWelcomeMessage() {
     const welcomeContainer = document.createElement('div');
     welcomeContainer.id = 'welcomeContainer';
     welcomeContainer.style.cssText = `
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #0c9042 0%, #36b448 100%);
         color: white;
         padding: 20px;
         margin: 20px 0;
@@ -273,12 +286,13 @@ function showWelcomeMessage() {
         closeButton.style.backgroundColor = 'transparent';
     };
 
-    closeButton.onclick = () => {
+    const closeWelcome = () => {
         welcomeContainer.style.animation = 'slideOut 0.3s ease-in';
         setTimeout(() => {
             welcomeContainer.remove();
         }, 300);
     };
+    closeButton.onclick = closeWelcome;
 
     // Contenu du message
     const content = document.createElement('div');
@@ -294,14 +308,35 @@ function showWelcomeMessage() {
             <strong>⚠️ Compatibilité :</strong> Cette application fonctionne uniquement sur <strong>Chrome/Chromium</strong> 
             en raison des limitations de l'API Web Serial.
         </p>
-        <p style="margin-bottom: 12px; line-height: 1.6;">
-            <strong>💡 Astuce :</strong> Pour obtenir des informations détaillées sur les différentes configurations disponibles, 
-            sélectionnez-les dans le menu déroulant "Choisir un fichier". Une description apparaîtra automatiquement.
-        </p>
     `;
+
+    // Bouton "Ne plus afficher" (mémorisé dans le navigateur)
+    const hideForeverButton = document.createElement('button');
+    hideForeverButton.textContent = 'Ne plus afficher ce message';
+    hideForeverButton.style.cssText = `
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.6);
+        color: white;
+        padding: 8px 14px;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    `;
+    hideForeverButton.onmouseover = () => {
+        hideForeverButton.style.backgroundColor = 'rgba(255,255,255,0.3)';
+    };
+    hideForeverButton.onmouseout = () => {
+        hideForeverButton.style.backgroundColor = 'rgba(255,255,255,0.15)';
+    };
+    hideForeverButton.onclick = () => {
+        try { localStorage.setItem(WELCOME_HIDDEN_KEY, '1'); } catch { }
+        closeWelcome();
+    };
 
     welcomeContainer.appendChild(closeButton);
     welcomeContainer.appendChild(content);
+    welcomeContainer.appendChild(hideForeverButton);
 
     // Ajouter les animations CSS si elles n'existent pas
     if (!document.getElementById('welcomeStyles')) {
@@ -452,7 +487,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Afficher le message de bienvenue après 500 ms (sauf si désactivé via ?disable_help=true)
-    if (!isWelcomeDisabledByUrl()) {
+    if (!isWelcomeDisabledByUrl() && !isWelcomeHiddenByUser()) {
         setTimeout(() => {
             showWelcomeMessage();
         }, 500);
