@@ -1,0 +1,26 @@
+# Static site + NTRIP corrections for the position map.
+# Rendered at container start by the nginx image (envsubst on NTRIP_* variables, see docker-compose.yml).
+server {
+    listen 80;
+    server_name localhost;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    # NTRIP 2.0 is plain HTTP: proxied straight to the caster. The page sends its position
+    # in the Ntrip-GGA header, used by the NEAR4 mountpoint to pick the closest base.
+    location = /ntrip/stream {
+        proxy_pass http://${NTRIP_HOST}:${NTRIP_PORT}/${NTRIP_MOUNT};
+        proxy_http_version 1.1;
+        proxy_set_header Host ${NTRIP_HOST};
+        proxy_set_header Connection "";
+        proxy_set_header Ntrip-Version Ntrip/2.0;
+        proxy_set_header User-Agent "NTRIP NavXConfigurator/1.0";
+        proxy_set_header Authorization "Basic ${NTRIP_BASIC_AUTH}";
+        proxy_buffering off;
+        proxy_read_timeout 1h;
+    }
+}

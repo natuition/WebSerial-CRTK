@@ -28,7 +28,7 @@
   <div class="main-content">
     <h1 class="brand">
       <img src="static/navx-logo.png" alt="NavX" class="logo" />
-      Configurateur NavX (Web Serial)
+      Configurateur NavX
     </h1>
 
     <div class="main-container">
@@ -64,6 +64,14 @@
           </button>
           <div id="deviceStatus" class="device-status" aria-live="polite">
             <span id="deviceName">Non connecté</span>
+            <!-- Shown while NMEA positions are received and the browser is online -->
+            <button id="mapToggle" class="map-btn hidden" title="Voir la position sur la carte">
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M20 10c0 4.99-5.54 10.19-7.4 11.8a1 1 0 0 1-1.2 0C9.54 20.19 4 14.99 4 10a8 8 0 0 1 16 0" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              Carte
+            </button>
           </div>
         </div>
       </div>
@@ -218,6 +226,19 @@
       </div>
     </div>
 
+    <!-- Map (position, RTK corrections) -->
+    <div class="settings-modal" id="mapModal">
+      <div class="settings-content map-content" role="dialog" aria-label="Carte">
+        <div class="map-banner">
+          <!-- Rendered on each position (fix, satellites, precision, corrections) -->
+          <div class="map-stats" id="mapStats"></div>
+          <button class="map-recenter" id="mapRecenter" title="Recentrer sur la position">Recentrer</button>
+          <button class="close-btn map-close" id="closeMapModal" title="Fermer la carte" aria-label="Fermer la carte">✕</button>
+        </div>
+        <div id="map" class="map"></div>
+      </div>
+    </div>
+
     <footer>
       <span class="footer-credit">© 2026 by
         <img src="static/logo.png" alt="Centipede-RTK" class="logo" />
@@ -235,6 +256,7 @@
 
     <script src="static/js/script.js"></script>
     <script src="static/js/index-script.js"></script>
+    <script src="static/js/nmea-map.js"></script>
 </body>
 
 </html>

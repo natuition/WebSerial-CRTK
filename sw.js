@@ -1,4 +1,4 @@
-const CACHE = 'webserial-crtk-v7';
+const CACHE = 'webserial-crtk-v10';
 const NETWORK_TIMEOUT_MS = 3000;
 const PRECACHE_URLS = [
     '/',
@@ -11,6 +11,7 @@ const PRECACHE_URLS = [
     '/static/js/script.js',
     '/static/js/index-script.js',
     '/static/js/index-advanced-script.js',
+    '/static/js/nmea-map.js',
     '/static/logo.png',
     '/static/natuition-logo.png',
     '/static/navx-logo.png',
@@ -115,6 +116,8 @@ self.addEventListener('fetch', event => {
     const req = event.request;
     // Only handle same-origin GET requests
     if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
+    // NTRIP corrections: endless live stream, never cached (proxied by nginx)
+    if (new URL(req.url).pathname.startsWith('/ntrip/')) return;
 
     if (req.destination === 'image') {
         event.respondWith(cacheFirst(event));

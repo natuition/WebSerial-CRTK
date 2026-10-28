@@ -24,7 +24,7 @@ const $ = s => document.querySelector(s);
  */
 function ensureWebSerial() {
     if (!('serial' in navigator)) {
-        throw new Error('Web Serial not supported in this browser. Use Chrome/Chromium desktop.');
+        throw new Error('Web Serial n\'est pas pris en charge par ce navigateur. Utilisez Chrome/Chromium sur ordinateur.');
     }
 }
 
@@ -33,7 +33,7 @@ function ensureWebSerial() {
  */
 function ensureWebBluetooth() {
     if (!('bluetooth' in navigator)) {
-        throw new Error('Web Bluetooth not supported in this browser. Use Chrome/Chromium desktop.');
+        throw new Error('Web Bluetooth n\'est pas pris en charge par ce navigateur. Utilisez Chrome/Chromium.');
     }
 }
 
@@ -102,6 +102,22 @@ function handleBleNotification(event) {
 }
 
 /**
+ * Writes raw bytes to the BLE NUS RX characteristic (text commands, RTCM corrections)
+ */
+async function writeBleBytes(payload) {
+    if (!bleRxChar) throw new Error('Caractéristique Bluetooth RX indisponible');
+    const chunkSize = 20;
+    for (let i = 0; i < payload.length; i += chunkSize) {
+        const chunk = payload.slice(i, i + chunkSize);
+        if (bleRxChar.writeValueWithoutResponse) {
+            await bleRxChar.writeValueWithoutResponse(chunk);
+        } else {
+            await bleRxChar.writeValue(chunk);
+        }
+    }
+}
+
+/**
  * Common Web Bluetooth connection function (NUS)
  */
 async function connectBle() {
@@ -130,19 +146,7 @@ async function connectBle() {
 
         reader = bleReceiveStream.getReader();
         writer = {
-            write: async (data) => {
-                if (!bleRxChar) throw new Error('BLE RX characteristic not available');
-                const payload = new TextEncoder().encode(String(data));
-                const chunkSize = 20;
-                for (let i = 0; i < payload.length; i += chunkSize) {
-                    const chunk = payload.slice(i, i + chunkSize);
-                    if (bleRxChar.writeValueWithoutResponse) {
-                        await bleRxChar.writeValueWithoutResponse(chunk);
-                    } else {
-                        await bleRxChar.writeValue(chunk);
-                    }
-                }
-            }
+            write: (data) => writeBleBytes(new TextEncoder().encode(String(data)))
         };
 
         await bleTxChar.startNotifications();
@@ -428,7 +432,7 @@ async function loadConfigFromUrl(url) {
         const txt = await resp.text();
         return { content: normalizeText(txt), success: true };
     } catch (e) {
-        throw new Error('Unable to load ' + url + ' : ' + (e?.message || e));
+        throw new Error('Impossible de charger ' + url + ' : ' + (e?.message || e));
     }
 }
 
@@ -440,7 +444,7 @@ async function loadConfigFromFile(file) {
         const txt = await file.text();
         return { content: normalizeText(txt), success: true, filename: file.name };
     } catch (e) {
-        throw new Error('File reading error: ' + (e?.message || e));
+        throw new Error('Erreur de lecture du fichier : ' + (e?.message || e));
     }
 }
 
@@ -449,14 +453,14 @@ async function loadConfigFromFile(file) {
  */
 async function sendSaveConfig() {
     if (!writer) {
-        throw new Error('Not connected.');
+        throw new Error('Non connecté.');
     }
     try {
         const command = 'SAVECONFIG' + getEOL();
         await writer.write(command);
         return { success: true, command: command };
     } catch (e) {
-        throw new Error('SAVECONFIG error: ' + (e?.message || e));
+        throw new Error('Erreur SAVECONFIG : ' + (e?.message || e));
     }
 }
 

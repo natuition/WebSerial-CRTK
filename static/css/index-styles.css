@@ -353,6 +353,45 @@ h1 {
   white-space: nowrap;
 }
 
+/* "Carte" button inside the status pill, pushed to the right */
+.map-btn {
+  margin-left: auto;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 32px;
+  box-sizing: border-box;
+  padding: 0 10px;
+  border: 2px solid var(--primary);
+  border-radius: 999px;
+  background: white;
+  color: var(--primary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.map-btn.hidden {
+  display: none;
+}
+
+.map-btn:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.map-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .device-status.connected {
   color: var(--primary);
   border-color: #cde8d3;
@@ -625,6 +664,109 @@ h1 {
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+/* Position map modal */
+/* No title bar: the banner (stats, Recentrer, close) sits directly on top of the map */
+.settings-content.map-content {
+  max-width: 900px;
+  padding: 12px;
+}
+
+.close-btn.map-close {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  font-size: 18px;
+}
+
+/* White banner attached on top of the map: fix type, satellites, precision */
+.map-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: white;
+  border: 1px solid #e8ecf1;
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+}
+
+.map-stats {
+  flex: 1 1 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 24px;
+}
+
+.map-stat {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.map-stat small {
+  font-size: 0.75rem;
+  color: #666;
+}
+
+.map-stat strong {
+  font-size: 1.05rem;
+  color: var(--dark);
+  font-variant-numeric: tabular-nums;
+}
+
+.map {
+  height: min(60vh, 520px);
+  border-radius: 0 0 10px 10px;
+  overflow: hidden;
+  border: 1px solid #e8ecf1;
+}
+
+.map-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #666;
+  font-weight: 600;
+  text-align: center;
+  padding: 16px;
+}
+
+.map-marker {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--fix-color, var(--primary));
+  border: 3px solid white;
+  box-shadow: 0 0 0 2px var(--fix-color, var(--primary)), 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.map-fix {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--fix-color);
+  color: white;
+  font-weight: 700;
+}
+
+.map-recenter {
+  flex: 0 0 auto;
+  padding: 6px 12px;
+  border: 2px solid #e8ecf1;
+  border-radius: 999px;
+  background: white;
+  color: var(--primary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.map-recenter:hover {
+  border-color: var(--primary);
 }
 
 .settings-content select,

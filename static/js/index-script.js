@@ -315,7 +315,7 @@ function showWelcomeMessage() {
     const content = document.createElement('div');
     content.innerHTML = `
         <h2 style="margin-top: 0; margin-bottom: 15px; color: #fff;">
-            Bienvenue dans le Configurateur NavX (Web Serial)
+            Bienvenue dans le Configurateur NavX
         </h2>
         <p style="margin-bottom: 12px; line-height: 1.6;">
             <strong>Configurateur NavX</strong> est un outil de configuration pour les récepteurs GNSS/RTK. 
@@ -493,14 +493,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         const result = await populateConfigSelect(false);
         if (result[0].length > 0) {
-            updateStatus(`${result[0].length} configuration file(s) found via ${result[1]}`, 'success');
+            updateStatus(`${result[0].length} configuration(s) trouvée(s) (${result[1]})`, 'success');
         } else {
-            updateStatus('Unable to list conf_files/ (auto-index or API). Use the "personal file" button.', 'info');
+            updateStatus('Impossible de lister les configurations. Utilisez un fichier personnel (paramètres avancés).', 'info');
         }
         await renderConfigSummaryTable();
     } catch (e) {
         console.log(e);
-        updateStatus('Error loading configurations', 'error');
+        updateStatus('Erreur lors du chargement des configurations', 'error');
     }
 
     // Afficher le message de bienvenue après 500 ms (sauf si désactivé via ?disable_help=true)
@@ -565,11 +565,11 @@ $('#configSelect').onchange = async (ev) => {
     $('#configFile').value = '';
     setConfigFileName(null);
     try {
-        updateStatus('Loading configuration...', 'info');
+        updateStatus('Chargement de la configuration…', 'info');
         const result = await loadConfigFromUrl(url);
         currentConfig = result.content;
         $('#upload').disabled = !isConnected;
-        updateStatus('Configuration loaded: ' + url.split('/').pop(), 'success');
+        updateStatus('Configuration chargée : ' + url.split('/').pop(), 'success');
 
         // Extract and display description
         const description = extractConfigDescription(result.content);
@@ -605,12 +605,12 @@ $('#configFile').onchange = async (ev) => {
         return;
     }
     try {
-        updateStatus('Loading file...', 'info');
+        updateStatus('Chargement du fichier…', 'info');
         const result = await loadConfigFromFile(f);
         currentConfig = result.content;
         $('#configSelect').value = ''; // deselect conf_files menu
         $('#upload').disabled = !isConnected;
-        updateStatus('File loaded: ' + result.filename, 'success');
+        updateStatus('Fichier chargé : ' + result.filename, 'success');
 
         // Extract and display description
         const description = extractConfigDescription(result.content);
@@ -629,7 +629,7 @@ $('#configFile').onchange = async (ev) => {
 /* ---------------------- Serial Communication ---------------------- */
 $('#connect').onclick = async () => {
     try {
-        updateStatus('Connecting...', 'info');
+        updateStatus('Connexion…', 'info');
 
         const result = await connectTransport();
 
@@ -645,12 +645,14 @@ $('#connect').onclick = async () => {
                         const parts = recvBuffer.split(/\r\n|\n/);
                         recvBuffer = parts.pop(); // remainder
                         for (const part of parts) {
-                            if (part.length) addToTerminal(part, 'received');
+                            if (!part.length) continue;
+                            addToTerminal(part, 'received');
+                            handleNmeaForMap(part);
                         }
                     }
                 }
             } catch (e) {
-                updateStatus('Read error: ' + e.message, 'error');
+                updateStatus('Erreur de lecture : ' + e.message, 'error');
             }
         })();
 
@@ -661,13 +663,18 @@ $('#connect').onclick = async () => {
         $('#upload').disabled = !currentConfig;
         if (result?.transport === 'ble') {
             setDeviceStatus(result.deviceName || 'Appareil Bluetooth');
-            updateStatus(`Connected BLE (${result.deviceName || 'device'})`, 'success');
+            updateStatus(`Connecté en Bluetooth (${result.deviceName || 'appareil'})`, 'success');
         } else {
             setDeviceStatus(`USB · ${result.baudRate} baud`);
-            updateStatus(`Connected @ ${result.baudRate} baud`, 'success');
+            updateStatus(`Connecté en USB à ${result.baudRate} bauds`, 'success');
         }
     } catch (e) {
-        updateStatus('Connection error: ' + (e?.message || e), 'error');
+        // Device chooser closed without selection (Web Bluetooth / Web Serial): not an error
+        if (e?.name === 'NotFoundError') {
+            updateStatus('Aucun appareil sélectionné.', 'info');
+            return;
+        }
+        updateStatus('Erreur de connexion : ' + (e?.message || e), 'error');
     }
 };
 
@@ -682,24 +689,25 @@ $('#disconnect').onclick = async () => {
         $('#upload').disabled = true;
         showProgress(false);
         setDeviceStatus(null);
-        updateStatus('Disconnected', 'info');
+        resetMapPosition();
+        updateStatus('Déconnecté', 'info');
     } catch (e) {
-        updateStatus('Disconnection error: ' + (e?.message || e), 'error');
+        updateStatus('Erreur de déconnexion : ' + (e?.message || e), 'error');
     }
 };
 
 /* ---------------------- Upload Commands ---------------------- */
 $('#upload').onclick = async () => {
     if (!writer) {
-        updateStatus('Not connected.', 'error');
+        updateStatus('Non connecté.', 'error');
         return;
     }
     if (!currentConfig) {
-        updateStatus('No configuration loaded.', 'error');
+        updateStatus('Aucune configuration chargée.', 'error');
         return;
     }
     if (sendingBatch) {
-        updateStatus('Sending already in progress. Please wait...', 'info');
+        updateStatus('Envoi déjà en cours, veuillez patienter…', 'info');
         return;
     }
 
@@ -708,7 +716,7 @@ $('#upload').onclick = async () => {
         .filter(s => s.length && !s.startsWith('#') && !s.startsWith('//') && !s.startsWith(';'));
 
     if (!lines.length) {
-        updateStatus('No valid commands in configuration.', 'error');
+        updateStatus('Aucune commande valide dans la configuration.', 'error');
         return;
     }
 
@@ -720,12 +728,12 @@ $('#upload').onclick = async () => {
     showProgress(true);
 
     try {
-        updateStatus(`Sending ${lines.length} command(s)...`, 'info');
+        updateStatus(`Envoi de ${lines.length} commande(s)…`, 'info');
         updateProgress(0, lines.length);
 
         // Clear terminal and add start message
         clearTerminal();
-        addToTerminal(`=== Starting configuration (${lines.length} commands) ===`);
+        addToTerminal(`=== Début de la configuration (${lines.length} commandes) ===`);
 
         for (let i = 0; i < lines.length; i++) {
             const cmd = lines[i];
@@ -749,7 +757,7 @@ $('#upload').onclick = async () => {
             }
             await writer.write(cmd + eol);
             if (cmd.trim().toUpperCase() === 'FRESET') {
-                addToTerminal('⏳ Waiting for device response after FRESET...', 'info');
+                addToTerminal('⏳ Attente de la réponse du récepteur après FRESET…', 'info');
             }
 
             // Display sent command in terminal
@@ -770,10 +778,10 @@ $('#upload').onclick = async () => {
                 try {
                     const perMessageTimeoutMs = (delaySec > 0) ? (delaySec * 1000) : 5000;
                     const matched = await waitForSequence(patterns, overallTimeoutMs, perMessageTimeoutMs);
-                    if (matched) addToTerminal('✅ Board finished reboot (sequence received).', 'info');
-                    else addToTerminal('⚠️ Board reboot sequence not complete — continuing', 'info');
+                    if (matched) addToTerminal('✅ Redémarrage du récepteur terminé.', 'info');
+                    else addToTerminal('⚠️ Redémarrage du récepteur incomplet, on continue', 'info');
                 } catch (e) {
-                    addToTerminal('⚠️ Error waiting for reboot sequence: ' + (e?.message || e), 'info');
+                    addToTerminal('⚠️ Erreur pendant l\'attente du redémarrage : ' + (e?.message || e), 'info');
                 }
                 // ensure minimal inter-command delay after reboot messages
                 await sleepPromise;
@@ -790,18 +798,18 @@ $('#upload').onclick = async () => {
                 }
             } catch (err) {
                 // On timeout (or no reader), continue and log a warning
-                addToTerminal(`⚠️ No response after ${delaySec}s — continuing`, 'info');
+                addToTerminal(`⚠️ Pas de réponse après ${delaySec} s, on continue`, 'info');
             }
         }
 
         updateProgress(lines.length, lines.length);
-        updateStatus('Configuration sent successfully!', 'success');
-        addToTerminal('=== End of configuration ===');
+        updateStatus('Configuration envoyée avec succès !', 'success');
+        addToTerminal('=== Fin de la configuration ===');
 
         // Hide progress bar after 3 seconds
         setTimeout(() => showProgress(false), 3000);
     } catch (e) {
-        updateStatus('Error during sending: ' + (e?.message || e), 'error');
+        updateStatus('Erreur pendant l\'envoi : ' + (e?.message || e), 'error');
         showProgress(false);
     } finally {
         sendingBatch = false;
@@ -813,7 +821,7 @@ $('#save').onclick = async () => {
     try {
         const result = await sendSaveConfig();
         addToTerminal(result.command.replace(/\n/g, '\\n').replace(/\r/g, '\\r'), 'sent');
-        updateStatus('SAVECONFIG command sent', 'success');
+        updateStatus('Commande SAVECONFIG envoyée', 'success');
     } catch (e) {
         updateStatus(e.message, 'error');
     }
