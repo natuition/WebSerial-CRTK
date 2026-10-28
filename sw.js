@@ -1,4 +1,4 @@
-const CACHE = 'webserial-crtk-v3';
+const CACHE = 'webserial-crtk-v4';
 const NETWORK_TIMEOUT_MS = 3000;
 const PRECACHE_URLS = [
     '/',
@@ -24,7 +24,14 @@ const PRECACHE_URLS = [
     '/conf_files/user/manifest.json',
     '/conf_files/user/NavX_GNSS_Mixed.cfg',
     '/conf_files/user/NavX_GNSS_Openfield.cfg',
-    '/conf_files/user/NavX_GNSS_Town.cfg'
+    '/conf_files/user/NavX_GNSS_Town.cfg',
+    '/conf_files/user_ble/manifest.json',
+    '/conf_files/user_ble/NavX_GNSS_Mixed.cfg',
+    '/conf_files/user_ble/NavX_GNSS_Openfield.cfg',
+    '/conf_files/user_ble/NavX_GNSS_Town.cfg',
+    '/conf_files/user_ble/NavX_GNSS_Fast_static_Mixed.cfg',
+    '/conf_files/user_ble/NavX_GNSS_Fast_static_Openfield.cfg',
+    '/conf_files/user_ble/NavX_GNSS_Fast_static_Town.cfg'
 ];
 
 self.addEventListener('install', event => {

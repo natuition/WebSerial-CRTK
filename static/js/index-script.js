@@ -57,6 +57,20 @@ function updateTransportUi() {
     }
 }
 
+/**
+ * USB and BLE have their own configuration folders: reload the list on transport change
+ * and drop a configuration selected from the previous list (a personal file is kept).
+ */
+async function reloadConfigsForTransport() {
+    if ($('#configSelect')?.value) {
+        currentConfig = '';
+        $('#upload').disabled = true;
+        displayConfigDescription(null);
+    }
+    await populateConfigSelect(false);
+    await renderConfigSummaryTable();
+}
+
 /* ---------------------- UI Functions ---------------------- */
 function updateStatus(message, type = 'info') {
     const statusEl = $('#status');
@@ -422,7 +436,8 @@ function displayConfigDescription(description) {
 
 /* ---------------------- Event Handlers ---------------------- */
 document.addEventListener('DOMContentLoaded', async () => {
-    // Initialize configuration list
+    // Initialize configuration list (transport must be final first: the list depends on it)
+    disableUsbOnMobile();
     try {
         const result = await populateConfigSelect(false);
         if (result[0].length > 0) {
@@ -445,7 +460,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const transportSel = $('#transport');
     if (transportSel) {
-        transportSel.addEventListener('change', updateTransportUi);
+        transportSel.addEventListener('change', async () => {
+            updateTransportUi();
+            await reloadConfigsForTransport();
+        });
         updateTransportUi();
     }
 });

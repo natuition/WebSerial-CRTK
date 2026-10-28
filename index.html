@@ -177,8 +177,9 @@
     <script src="static/js/script.js"></script>
     <script src="static/js/index-script.js"></script>
     <script>
-      // Sélection dynamique du transport par défaut selon la largeur d'écran
-      document.addEventListener('DOMContentLoaded', function () {
+      // Sélection dynamique du transport par défaut selon la largeur d'écran.
+      // Exécuté immédiatement (pas au DOMContentLoaded) : la liste des configurations en dépend.
+      (function () {
         var transportSelect = document.getElementById('transport');
         if (transportSelect) {
           if (window.innerWidth <= 600) {
@@ -187,7 +188,7 @@
             transportSelect.value = 'serial';
           }
         }
-      });
+      })();
     </script>
 </body>
 

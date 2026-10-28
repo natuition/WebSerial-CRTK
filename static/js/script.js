@@ -249,7 +249,11 @@ function disableUsbOnMobile() {
             opt.disabled = true;
             // annotate the label so users understand why it's disabled
             if (!/mobile/i.test(opt.text)) opt.text = opt.text + ' (non disponible sur mobile)';
-            if (sel.value === 'serial') sel.value = 'ble';
+            if (sel.value === 'serial') {
+                sel.value = 'ble';
+                // notify listeners (e.g. configuration list depends on transport)
+                sel.dispatchEvent(new Event('change'));
+            }
             if (typeof updateTransportUi === 'function') updateTransportUi();
         } else {
             // ensure enabled on non-mobile
@@ -277,10 +281,10 @@ async function disconnectTransport() {
 
 /* ---------------------- Configuration files listing ---------------------- */
 const ALLOWED_EXT = /\.(txt|cfg|conf|ini|nmea|csv|log)$/i;
-// Resolve base folder depending on interface ---
+// Resolve base folder depending on interface and, in user mode, on transport ---
 function getConfigBase() {
-    const mode = (window.CONFIG_SOURCE === 'advanced') ? 'advanced' : 'user';
-    return `conf_files/${mode}`;
+    if (window.CONFIG_SOURCE === 'advanced') return 'conf_files/advanced';
+    return ($('#transport')?.value === 'ble') ? 'conf_files/user_ble' : 'conf_files/user';
 }
 
 /**
